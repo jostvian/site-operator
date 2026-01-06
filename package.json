@@ -37,6 +37,7 @@
     }
   },
   "dependencies": {
+    "@ag-ui/client": "^0.0.42",
     "lit": "^3.3.1"
   },
   "devDependencies": {

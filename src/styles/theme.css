@@ -1,0 +1,18 @@
+:root {
+  --sami-bg-white: #ffffff;
+  --sami-bg-zinc-100: #f4f4f5;
+  --sami-bg-zinc-200: #e4e4e7;
+  --sami-bg-black: #09090b;
+  
+  --sami-text-foreground: #09090b;
+  --sami-text-zinc-500: #71717a;
+  --sami-text-white: #ffffff;
+
+  --sami-border-zinc-200: #e4e4e7;
+  --sami-border-zinc-100: #f4f4f5;
+
+  --sami-radius-3xl: 1.5rem;
+  --sami-radius-full: 9999px;
+  
+  --sami-font-sans: "Inter", sans-serif;
+}
