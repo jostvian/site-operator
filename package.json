@@ -4,9 +4,37 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "wireit",
+    "build": "wireit",
+    "preview": "wireit"
+  },
+  "wireit": {
+    "dev": {
+      "command": "vite",
+      "service": true
+    },
+    "check-types": {
+      "command": "tsc --noEmit",
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": []
+    },
+    "build": {
+      "command": "vite build",
+      "dependencies": [
+        "check-types"
+      ],
+      "files": [
+        "src/**/*",
+        "index.html",
+        "vite.config.ts"
+      ],
+      "output": [
+        "dist/**"
+      ]
+    }
   },
   "dependencies": {
     "lit": "^3.3.1"
