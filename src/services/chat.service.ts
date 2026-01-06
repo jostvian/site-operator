@@ -1,10 +1,11 @@
 import { HttpAgent } from "@ag-ui/client";
 import type { ChatThread, Message } from "../models/chat.types";
+import { generateId } from "../utils/id-generator";
 
 export class ChatService extends EventTarget {
     private agent: HttpAgent;
     private _thread: ChatThread = {
-        id: crypto.randomUUID(),
+        id: generateId("thread"),
         messages: [],
         isRunning: false,
     };
@@ -23,7 +24,7 @@ export class ChatService extends EventTarget {
     async sendMessage(content: string) {
         // Optimistic update
         const userMsg: Message = {
-            id: crypto.randomUUID(),
+            id: generateId("message"),
             role: "user",
             content,
             createdAt: Date.now(),
@@ -56,7 +57,7 @@ export class ChatService extends EventTarget {
             // Temporarily:
             // Mock response to ensure UI works while I figure out the exact event stream handling
             const botMsg: Message = {
-                id: crypto.randomUUID(),
+                id: generateId("message"),
                 role: "assistant",
                 content: "Response from agent (mock/integration pending)", // result.messages.last().content
                 createdAt: Date.now()
@@ -75,7 +76,7 @@ export class ChatService extends EventTarget {
 
     startNewThread() {
         this._thread = {
-            id: crypto.randomUUID(),
+            id: generateId("thread"),
             messages: [],
             isRunning: false
         };
