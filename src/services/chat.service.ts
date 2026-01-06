@@ -34,13 +34,18 @@ export class ChatService extends EventTarget {
         this.notify();
 
         try {
-            // Run the agent
-            const result = await this.agent.run({
-                messages: this._thread.messages.map(m => ({
-                    role: m.role,
-                    content: m.content
-                }))
+            // Configure agent
+            this.agent.threadId = this._thread.id;
+
+            // Add only the new message
+            this.agent.addMessage({
+                id: userMsg.id,
+                role: userMsg.role,
+                content: userMsg.content
             });
+
+            // Run the agent
+            const result = await this.agent.runAgent();
 
             // Basic handling of result - assuming it returns the new message(s)
             // Adjust based on actual HttpAgent return type which I haven't fully inspected
