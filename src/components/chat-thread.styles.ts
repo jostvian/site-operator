@@ -42,6 +42,15 @@ export const styles = css`
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
+  .empty-avatar-img {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--sami-radius-full, 9999px);
+    object-fit: cover;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
   .empty-text {
     font-size: 1.25rem;
     line-height: 1.75rem;

@@ -33,6 +33,15 @@ export const styles = css`
     color: var(--sami-text-foreground, #09090b);
   }
 
+  .avatar-img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    object-fit: cover;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+  }
+
   .content-wrapper {
     display: flex;
     flex-direction: column;

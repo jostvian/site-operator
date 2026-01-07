@@ -4,7 +4,7 @@ import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 
 export class ChatService extends EventTarget {
-    private agent: HttpAgent;
+    private agent?: HttpAgent;
     private _thread: ChatThread = {
         id: generateId("thread"),
         messages: [],
@@ -15,10 +15,13 @@ export class ChatService extends EventTarget {
 
     constructor() {
         super();
-        this.agent = new HttpAgent({
-            url: 'http://localhost:8001/ag_ui', // TODO: Make configurable
-        });
         this.subscriber = new ChatSubscriber(this);
+    }
+
+    initialize(config: { backendUrl: string }) {
+        this.agent = new HttpAgent({
+            url: config.backendUrl,
+        });
     }
 
     get thread() {
@@ -26,6 +29,11 @@ export class ChatService extends EventTarget {
     }
 
     async sendMessage(content: string) {
+        if (!this.agent) {
+            console.error("ChatService not initialized. Call initialize() first.");
+            return;
+        }
+
         // Optimistic update
         const userMsg: Message = {
             id: generateId("message"),
