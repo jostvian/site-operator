@@ -7,39 +7,48 @@ import { CopyIcon, ReloadIcon } from '../icons';
 
 @customElement('sami-chat-message')
 export class ChatMessage extends LitElement {
-    static styles = styles;
+  static styles = styles;
 
-    @property({ type: Object }) message!: Message;
-    @property({ type: Boolean }) isLast = false;
+  @property({ type: Object }) message!: Message;
+  @property({ type: Boolean }) isLast = false;
+  @property({ type: Boolean }) isStreaming = false;
 
-    updated(changedProperties: Map<string, any>) {
-        if (changedProperties.has('message')) {
-            this.setAttribute('role', this.message.role);
-            this.requestUpdate();
-        }
+  updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('message')) {
+      this.setAttribute('role', this.message.role);
+      this.requestUpdate();
     }
+  }
 
-    private _handleCopy() {
-        navigator.clipboard.writeText(this.message.content);
-        // TODO: Show copied feedback
-    }
+  private _handleCopy() {
+    navigator.clipboard.writeText(this.message.content);
+    // TODO: Show copied feedback
+  }
 
-    private _handleReload() {
-        this.dispatchEvent(new CustomEvent('reload-message', { detail: { id: this.message.id }, bubbles: true, composed: true }));
-    }
+  private _handleReload() {
+    this.dispatchEvent(new CustomEvent('reload-message', { detail: { id: this.message.id }, bubbles: true, composed: true }));
+  }
 
-    render() {
-        const isUser = this.message.role === 'user';
+  render() {
+    const isUser = this.message.role === 'user';
 
-        return html`
+    return html`
       <div class="message-container">
         ${!isUser ? html`
           <div class="avatar">C</div>
         ` : ''}
         
         <div class="content-wrapper">
-          <div class="bubble">
-            ${this.message.content}
+          <div class="bubble ${this.isStreaming ? 'streaming' : ''}">
+            ${this.message.isThinking
+        ? html`
+                <div class="typing-indicator">
+                  <div class="typing-dot"></div>
+                  <div class="typing-dot"></div>
+                  <div class="typing-dot"></div>
+                </div>
+              `
+        : this.message.content}
           </div>
 
           ${!isUser ? html`
@@ -55,5 +64,5 @@ export class ChatMessage extends LitElement {
         </div>
       </div>
     `;
-    }
+  }
 }

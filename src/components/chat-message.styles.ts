@@ -63,7 +63,56 @@ export const styles = css`
     transition: opacity 0.2s;
   }
 
+  /* Cursor animation */
+  .bubble.streaming::after {
+    content: '';
+    display: inline-block;
+    width: 0.125rem;
+    height: 1em;
+    background-color: currentColor;
+    margin-left: 0.125rem;
+    vertical-align: text-bottom;
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
   .message-container:hover .actions {
     opacity: 1;
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+  }
+
+  .typing-dot {
+    width: 0.375rem;
+    height: 0.375rem;
+    background-color: var(--sami-text-foreground, #09090b);
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: typing 1.4s infinite ease-in-out both;
+  }
+
+  .typing-dot:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  
+  .typing-dot:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+
+  @keyframes typing {
+    0%, 80%, 100% { 
+      transform: scale(0);
+    } 
+    40% { 
+      transform: scale(1); 
+    }
   }
 `;

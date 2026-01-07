@@ -1,6 +1,7 @@
 import { HttpAgent } from "@ag-ui/client";
 import type { ChatThread, Message } from "../models/chat.types";
 import { generateId } from "../utils/id-generator";
+import { ChatSubscriber } from "./chat.subscriber";
 
 export class ChatService extends EventTarget {
     private agent: HttpAgent;
@@ -10,11 +11,14 @@ export class ChatService extends EventTarget {
         isRunning: false,
     };
 
+    private subscriber: ChatSubscriber;
+
     constructor() {
         super();
         this.agent = new HttpAgent({
-            url: 'http://localhost:3000/api/agent', // TODO: Make configurable
+            url: 'http://localhost:8001/ag_ui', // TODO: Make configurable
         });
+        this.subscriber = new ChatSubscriber(this);
     }
 
     get thread() {
@@ -45,25 +49,8 @@ export class ChatService extends EventTarget {
                 content: userMsg.content
             });
 
-            // Run the agent
-            const result = await this.agent.runAgent();
-
-            // Basic handling of result - assuming it returns the new message(s)
-            // Adjust based on actual HttpAgent return type which I haven't fully inspected
-            // For now, let's mock the response part if agent run doesn't update state directly
-            // The HttpAgent usually returns an observable or a promise with events. 
-            // Based on the d.ts, runAgent returns RunAgentResult.
-
-            // Temporarily:
-            // Mock response to ensure UI works while I figure out the exact event stream handling
-            const botMsg: Message = {
-                id: generateId("message"),
-                role: "assistant",
-                content: "Response from agent (mock/integration pending)", // result.messages.last().content
-                createdAt: Date.now()
-            };
-
-            this._thread.messages = [...this._thread.messages, botMsg];
+            // Run the agent with subscriber
+            await this.agent.runAgent({}, this.subscriber);
 
         } catch (error) {
             console.error("Failed to send message", error);
@@ -72,6 +59,52 @@ export class ChatService extends EventTarget {
             this._thread.isRunning = false;
             this.notify();
         }
+    }
+
+    addPlaceholderMessage() {
+        const placeholder: Message = {
+            id: "thinking-placeholder",
+            role: "assistant",
+            content: "",
+            createdAt: Date.now(),
+            isThinking: true
+        };
+        this._thread.messages = [...this._thread.messages, placeholder];
+        this.notify();
+    }
+
+    prepareMessageForStreaming(newId: string) {
+        this._thread.messages = this._thread.messages.map(msg => {
+            if (msg.isThinking) {
+                return {
+                    ...msg,
+                    id: newId,
+                    isThinking: false
+                };
+            }
+            return msg;
+        });
+        this.notify();
+    }
+
+    appendMessageContent(id: string, content: string) {
+        this._thread.messages = this._thread.messages.map(msg => {
+            if (msg.id === id) {
+                return {
+                    ...msg,
+                    content: msg.content + content
+                };
+            }
+            return msg;
+        });
+        this.notify();
+    }
+
+    setMessages(messages: Message[]) {
+        // Map external messages to our Message type if needed, or assume compatibility
+        // Assuming strict compatibility for now
+        this._thread.messages = messages as Message[];
+        this.notify();
     }
 
     startNewThread() {

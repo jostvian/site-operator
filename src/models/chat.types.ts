@@ -5,6 +5,7 @@ export interface Message {
     role: Role;
     content: string;
     createdAt: number;
+    isThinking?: boolean;
 }
 
 export interface ChatThread {

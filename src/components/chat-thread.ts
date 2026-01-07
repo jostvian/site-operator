@@ -6,43 +6,45 @@ import './chat-message';
 
 @customElement('sami-chat-thread')
 export class ChatThread extends LitElement {
-    static styles = styles;
+  static styles = styles;
 
-    @property({ type: Array }) messages: Message[] = [];
+  @property({ type: Array }) messages: Message[] = [];
+  @property({ type: Boolean }) isRunning = false;
 
-    // listElement query removed as it was unused in logic (scrollToBottom uses querySelector directly)
+  // listElement query removed as it was unused in logic (scrollToBottom uses querySelector directly)
 
-    updated(changedProperties: Map<string, any>) {
-        if (changedProperties.has('messages')) {
-            this.scrollToBottom();
-        }
+  updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('messages')) {
+      this.scrollToBottom();
     }
+  }
 
-    async scrollToBottom() {
-        await this.updateComplete;
-        const lastMessage = this.shadowRoot?.querySelector('sami-chat-message:last-of-type');
-        lastMessage?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
+  async scrollToBottom() {
+    await this.updateComplete;
+    const lastMessage = this.shadowRoot?.querySelector('sami-chat-message:last-of-type');
+    lastMessage?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
 
-    render() {
-        if (this.messages.length === 0) {
-            return html`
+  render() {
+    if (this.messages.length === 0) {
+      return html`
             <div class="empty-state">
                 <div class="empty-avatar">SM</div>
                 <p class="empty-text">¿Cómo puedo ayudarte hoy?</p>
             </div>
         `;
-        }
+    }
 
-        return html`
+    return html`
       <div class="messages-list">
         ${this.messages.map((msg, index) => html`
           <sami-chat-message 
             .message=${msg} 
-            .isLast=${index === this.messages.length - 1}>
+            .isLast=${index === this.messages.length - 1}
+            .isStreaming=${this.isRunning && index === this.messages.length - 1}>
           </sami-chat-message>
         `)}
       </div>
     `;
-    }
+  }
 }
