@@ -12,6 +12,7 @@ export class ChatMessage extends LitElement {
   @property({ type: Object }) message!: Message;
   @property({ type: Boolean }) isLast = false;
   @property({ type: Boolean }) isStreaming = false;
+  @property({ type: String }) agentAvatar = '';
 
   updated(changedProperties: Map<string, any>) {
     if (changedProperties.has('message')) {
@@ -35,7 +36,10 @@ export class ChatMessage extends LitElement {
     return html`
       <div class="message-container">
         ${!isUser ? html`
-          <div class="avatar">C</div>
+            ${this.agentAvatar
+          ? html`<img src="${this.agentAvatar}" class="avatar-img" alt="AI">`
+          : html`<div class="avatar">C</div>`
+        }
         ` : ''}
         
         <div class="content-wrapper">

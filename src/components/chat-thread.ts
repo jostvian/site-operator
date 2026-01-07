@@ -10,6 +10,7 @@ export class ChatThread extends LitElement {
 
   @property({ type: Array }) messages: Message[] = [];
   @property({ type: Boolean }) isRunning = false;
+  @property({ type: String }) agentAvatar = '';
 
   // listElement query removed as it was unused in logic (scrollToBottom uses querySelector directly)
 
@@ -29,7 +30,10 @@ export class ChatThread extends LitElement {
     if (this.messages.length === 0) {
       return html`
             <div class="empty-state">
-                <div class="empty-avatar">SM</div>
+                ${this.agentAvatar
+          ? html`<img src="${this.agentAvatar}" alt="Agent Avatar" class="empty-avatar-img">`
+          : html`<div class="empty-avatar">SM</div>`
+        }
                 <p class="empty-text">¿Cómo puedo ayudarte hoy?</p>
             </div>
         `;
@@ -41,7 +45,8 @@ export class ChatThread extends LitElement {
           <sami-chat-message 
             .message=${msg} 
             .isLast=${index === this.messages.length - 1}
-            .isStreaming=${this.isRunning && index === this.messages.length - 1}>
+            .isStreaming=${this.isRunning && index === this.messages.length - 1}
+            .agentAvatar="${this.agentAvatar}">
           </sami-chat-message>
         `)}
       </div>

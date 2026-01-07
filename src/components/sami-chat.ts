@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, state, property } from 'lit/decorators.js';
 import { styles } from './sami-chat.styles';
 import './chat-header';
 import './chat-thread';
@@ -13,6 +13,8 @@ export class SamiChat extends LitElement {
     static styles = styles;
 
     @state() private _thread: ChatThread = chatService.thread;
+    @property({ type: String, attribute: 'backend-url' }) backendUrl = 'http://localhost:8001/ag_ui';
+    @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
 
     constructor() {
         super();
@@ -20,6 +22,12 @@ export class SamiChat extends LitElement {
         chatService.addEventListener('state-change', () => {
             this._thread = { ...chatService.thread }; // Spread to trigger reactivity
         });
+    }
+
+    willUpdate(changedProperties: Map<string, any>) {
+        if (changedProperties.has('backendUrl')) {
+            chatService.initialize({ backendUrl: this.backendUrl });
+        }
     }
 
     private _handleSend(e: CustomEvent) {
@@ -34,7 +42,11 @@ export class SamiChat extends LitElement {
         return html`
       <div class="chat-layout">
         <sami-chat-header @new-thread="${this._handleNewThread}"></sami-chat-header>
-        <sami-chat-thread .messages="${this._thread.messages}" ?isRunning="${this._thread.isRunning}"></sami-chat-thread>
+        <sami-chat-thread 
+            .messages="${this._thread.messages}" 
+            ?isRunning="${this._thread.isRunning}"
+            .agentAvatar="${this.agentAvatar}">
+        </sami-chat-thread>
         <sami-chat-composer ?isRunning="${this._thread.isRunning}" @send="${this._handleSend}"></sami-chat-composer>
       </div>
     `;
