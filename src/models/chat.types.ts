@@ -26,7 +26,7 @@ export interface ConversationSummary {
  */
 export interface AgentState {
     /** Nombre del portal donde se ejecuta el chat */
-    app_name: string;
+    appName: string;
     /** Nombre de la página donde se está ejecutando */
-    current_page: string;
+    currentPage: string;
 }

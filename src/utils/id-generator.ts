@@ -1,20 +1,20 @@
 export type StoreItemType =
     | "thread"
     | "message"
-    | "tool_call"
+    | "toolCall"
     | "workflow"
     | "task"
     | "attachment"
-    | "sdk_hidden_context";
+    | "sdkHiddenContext";
 
 const ID_PREFIXES: Record<StoreItemType, string> = {
     "thread": "thr",
     "message": "msg",
-    "tool_call": "tc",
+    "toolCall": "tc",
     "workflow": "wf",
     "task": "tsk",
     "attachment": "atc",
-    "sdk_hidden_context": "shcx",
+    "sdkHiddenContext": "shcx",
 };
 
 export function generateId(itemType: StoreItemType): string {
