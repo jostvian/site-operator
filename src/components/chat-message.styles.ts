@@ -27,10 +27,10 @@ export const styles = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--sami-radius-full, 9999px);
-    border: 1px solid var(--sami-border-zinc-200, #e4e4e7);
+    border-radius: var(--agent-radius-full, 9999px);
+    border: 1px solid var(--agent-border-zinc-200, #e4e4e7);
     font-size: 0.75rem;
-    color: var(--sami-text-foreground, #09090b);
+    color: var(--agent-text-foreground, #09090b);
   }
 
   .avatar-img {
@@ -50,13 +50,13 @@ export const styles = css`
 
   .bubble {
     padding: 0.5rem 1.25rem;
-    border-radius: var(--sami-radius-3xl, 1.5rem);
-    color: var(--sami-text-foreground, #09090b);
+    border-radius: var(--agent-radius-3xl, 1.5rem);
+    color: var(--agent-text-foreground, #09090b);
     line-height: 1.5;
   }
 
   :host([role="user"]) .bubble {
-    background-color: var(--sami-bg-zinc-100, #f4f4f5);
+    background-color: var(--agent-bg-zinc-100, #f4f4f5);
   }
 
   :host([role="assistant"]) .bubble {
@@ -102,7 +102,7 @@ export const styles = css`
   .typing-dot {
     width: 0.375rem;
     height: 0.375rem;
-    background-color: var(--sami-text-foreground, #09090b);
+    background-color: var(--agent-text-foreground, #09090b);
     border-radius: 50%;
     opacity: 0.4;
     animation: typing 1.4s infinite ease-in-out both;

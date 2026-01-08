@@ -4,11 +4,11 @@ import { styles } from './chat-header.styles';
 import './ui/icon-button';
 import { PlusIcon, HistoryIcon } from '../icons';
 
-@customElement('sami-chat-header')
+@customElement('agent-chat-header')
 export class ChatHeader extends LitElement {
   static styles = styles;
 
-  @property({ type: String }) title = 'Sami Chat';
+  @property({ type: String }) title = 'Agent Chat';
 
   private _handleNewThread() {
     this.dispatchEvent(new CustomEvent('new-thread', { bubbles: true, composed: true }));
@@ -23,12 +23,12 @@ export class ChatHeader extends LitElement {
       <header class="header">
         <h1>${this.title}</h1>
         <div class="actions">
-            <sami-icon-button tooltip="Conversaciones" @click="${this._handleToggleHistory}">
+            <agent-icon-button tooltip="Conversaciones" @click="${this._handleToggleHistory}">
                 ${HistoryIcon}
-            </sami-icon-button>
-            <sami-icon-button tooltip="Nuevo Chat" @click="${this._handleNewThread}">
+            </agent-icon-button>
+            <agent-icon-button tooltip="Nuevo Chat" @click="${this._handleNewThread}">
                 ${PlusIcon}
-            </sami-icon-button>
+            </agent-icon-button>
         </div>
       </header>
     `;

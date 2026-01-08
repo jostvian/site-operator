@@ -5,7 +5,7 @@ import type { Message } from '../models/chat.types';
 import './ui/icon-button';
 import { CopyIcon, ReloadIcon } from '../icons';
 
-@customElement('sami-chat-message')
+@customElement('agent-chat-message')
 export class ChatMessage extends LitElement {
   static styles = styles;
 
@@ -57,12 +57,12 @@ export class ChatMessage extends LitElement {
 
           ${!isUser ? html`
              <div class="actions">
-                <sami-icon-button tooltip="Copy" @click="${this._handleCopy}">
+                <agent-icon-button tooltip="Copy" @click="${this._handleCopy}">
                     ${CopyIcon}
-                </sami-icon-button>
-                <sami-icon-button tooltip="Reload" @click="${this._handleReload}">
+                </agent-icon-button>
+                <agent-icon-button tooltip="Reload" @click="${this._handleReload}">
                     ${ReloadIcon}
-                </sami-icon-button>
+                </agent-icon-button>
              </div>
           ` : ''}
         </div>
