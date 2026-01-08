@@ -3,7 +3,7 @@ import { css } from 'lit';
 export const styles = css`
   :host {
     display: block;
-    border-bottom: 1px solid var(--sami-border-zinc-200, #e4e4e7);
+    border-bottom: 1px solid var(--agent-border-zinc-200, #e4e4e7);
   }
 
   .header {
@@ -21,7 +21,7 @@ export const styles = css`
     margin: 0;
     font-size: 1.125rem; /* 18px */
     font-weight: 600;
-    color: var(--sami-text-foreground, #09090b);
+    color: var(--agent-text-foreground, #09090b);
   }
 
   .actions {

@@ -5,7 +5,7 @@ export const styles = css`
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background-color: var(--sami-bg-white, #ffffff);
+    background-color: var(--agent-bg-white, #ffffff);
     overflow: hidden;
     position: relative;
   }
@@ -17,7 +17,7 @@ export const styles = css`
       position: relative;
   }
 
-  sami-chat-header {
+  agent-chat-header {
       position: absolute;
       top: 0;
       left: 0;
@@ -25,7 +25,7 @@ export const styles = css`
       z-index: 10;
   }
 
-  sami-chat-thread {
+  agent-chat-thread {
       flex: 1;
       padding-bottom: 8rem; /* Space for composer */
   }

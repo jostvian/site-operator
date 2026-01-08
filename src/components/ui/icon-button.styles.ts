@@ -12,15 +12,15 @@ export const styles = css`
     background: transparent;
     border: none;
     cursor: pointer;
-    border-radius: var(--sami-radius-full, 9999px);
+    border-radius: var(--agent-radius-full, 9999px);
     padding: 0.5rem;
-    color: var(--sami-text-zinc-500, #71717a);
+    color: var(--agent-text-zinc-500, #71717a);
     transition: color 0.2s, background-color 0.2s;
   }
 
   button:hover {
-    color: var(--sami-text-foreground, #09090b);
-    background-color: var(--sami-bg-zinc-100, #f4f4f5);
+    color: var(--agent-text-foreground, #09090b);
+    background-color: var(--agent-bg-zinc-100, #f4f4f5);
   }
 
   ::slotted(svg) {

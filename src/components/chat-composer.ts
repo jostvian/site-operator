@@ -3,7 +3,7 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { styles } from './chat-composer.styles';
 import { ArrowUpIcon, StopIcon } from '../icons';
 
-@customElement('sami-chat-composer')
+@customElement('agent-chat-composer')
 export class ChatComposer extends LitElement {
     static styles = styles;
 
@@ -48,7 +48,7 @@ export class ChatComposer extends LitElement {
         return html`
       <div class="composer-container">
         <textarea
-            placeholder="Enviar un mensaje a Sami"
+            placeholder="Enviar un mensaje a Agent"
             .value="${this._value}"
             @input="${this._handleInput}"
             @keydown="${this._handleKeyDown}"
@@ -62,7 +62,7 @@ export class ChatComposer extends LitElement {
             }
       </div>
       <p class="disclaimer">
-        Sami puede cometer errores. Verifica la información importante.
+        Agent puede cometer errores. Verifica la información importante.
       </p>
     `;
     }

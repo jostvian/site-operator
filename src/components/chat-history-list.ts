@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { styles } from './chat-history-list.styles';
 import type { ConversationSummary } from '../models/chat.types';
 
-@customElement('sami-chat-history-list')
+@customElement('agent-chat-history-list')
 export class ChatHistoryList extends LitElement {
     static styles = styles;
 

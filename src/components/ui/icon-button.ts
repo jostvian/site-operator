@@ -2,8 +2,8 @@ import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { styles } from './icon-button.styles';
 
-@customElement('sami-icon-button')
-export class SamiIconButton extends LitElement {
+@customElement('agent-icon-button')
+export class AgentIconButton extends LitElement {
     static styles = styles;
 
     @property() tooltip = '';
@@ -19,6 +19,6 @@ export class SamiIconButton extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'sami-icon-button': SamiIconButton;
+        'agent-icon-button': AgentIconButton;
     }
 }

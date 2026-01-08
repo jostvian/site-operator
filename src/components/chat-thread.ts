@@ -4,7 +4,7 @@ import { styles } from './chat-thread.styles';
 import type { Message } from '../models/chat.types';
 import './chat-message';
 
-@customElement('sami-chat-thread')
+@customElement('agent-chat-thread')
 export class ChatThread extends LitElement {
   static styles = styles;
 
@@ -22,7 +22,7 @@ export class ChatThread extends LitElement {
 
   async scrollToBottom() {
     await this.updateComplete;
-    const lastMessage = this.shadowRoot?.querySelector('sami-chat-message:last-of-type');
+    const lastMessage = this.shadowRoot?.querySelector('agent-chat-message:last-of-type');
     lastMessage?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
 
@@ -42,12 +42,12 @@ export class ChatThread extends LitElement {
     return html`
       <div class="messages-list">
         ${this.messages.map((msg, index) => html`
-          <sami-chat-message 
+          <agent-chat-message 
             .message=${msg} 
             .isLast=${index === this.messages.length - 1}
             .isStreaming=${this.isRunning && index === this.messages.length - 1}
             .agentAvatar="${this.agentAvatar}">
-          </sami-chat-message>
+          </agent-chat-message>
         `)}
       </div>
     `;

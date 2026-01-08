@@ -16,8 +16,8 @@ export const styles = css`
     margin: 0 auto;
     display: flex;
     align-items: flex-end;
-    background-color: var(--sami-bg-zinc-100, #f4f4f5);
-    border-radius: var(--sami-radius-3xl, 1.5rem);
+    background-color: var(--agent-bg-zinc-100, #f4f4f5);
+    border-radius: var(--agent-radius-3xl, 1.5rem);
     padding-left: 0.5rem;
     transition: background-color 0.2s;
   }
@@ -35,13 +35,13 @@ export const styles = css`
     padding: 0.875rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
-    color: var(--sami-text-foreground, #09090b);
+    color: var(--agent-text-foreground, #09090b);
     outline: none;
     height: 3rem; /* default roughly h-12 */
   }
 
   textarea::placeholder {
-    color: var(--sami-text-zinc-500, #71717a);
+    color: var(--agent-text-zinc-500, #71717a);
   }
 
   .action-button {
@@ -51,9 +51,9 @@ export const styles = css`
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    border-radius: var(--sami-radius-full, 9999px);
-    background-color: var(--sami-bg-black, #09090b);
-    color: var(--sami-text-white, #ffffff);
+    border-radius: var(--agent-radius-full, 9999px);
+    background-color: var(--agent-bg-black, #09090b);
+    color: var(--agent-text-white, #ffffff);
     transition: opacity 0.2s;
     cursor: pointer;
   }
@@ -71,7 +71,7 @@ export const styles = css`
   
   .disclaimer {
       text-align: center;
-      color: var(--sami-text-zinc-500, #71717a);
+      color: var(--agent-text-zinc-500, #71717a);
       font-size: 0.75rem;
       padding: 0.5rem;
   }

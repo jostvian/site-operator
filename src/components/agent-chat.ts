@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, state, property } from 'lit/decorators.js';
-import { styles } from './sami-chat.styles';
+import { styles } from './agent-chat.styles';
 import './chat-header';
 import './chat-thread';
 import './chat-composer';
@@ -9,8 +9,8 @@ import './chat-history-list';
 import { ChatController } from '../hooks/chat.controller';
 
 
-@customElement('sami-chat')
-export class SamiChat extends LitElement {
+@customElement('agent-chat')
+export class AgentChat extends LitElement {
     static styles = styles;
 
     private _chatController = new ChatController(this);
@@ -59,21 +59,21 @@ export class SamiChat extends LitElement {
     render() {
         return html`
       <div class="chat-layout">
-        <sami-chat-header 
+        <agent-chat-header 
             @new-thread="${this._handleNewThread}"
             @toggle-history="${this._toggleHistory}"
-        ></sami-chat-header>
-        <sami-chat-history-list 
+        ></agent-chat-header>
+        <agent-chat-history-list 
             .conversations="${this._conversations}" 
             ?open="${this._historyOpen}"
             @select-thread="${this._handleSelectThread}"
-        ></sami-chat-history-list>
-        <sami-chat-thread 
+        ></agent-chat-history-list>
+        <agent-chat-thread 
             .messages="${this._chatController.thread.messages}" 
             ?isRunning="${this._chatController.thread.isRunning}"
             .agentAvatar="${this.agentAvatar}">
-        </sami-chat-thread>
-        <sami-chat-composer ?isRunning="${this._chatController.thread.isRunning}" @send="${this._handleSend}"></sami-chat-composer>
+        </agent-chat-thread>
+        <agent-chat-composer ?isRunning="${this._chatController.thread.isRunning}" @send="${this._handleSend}"></agent-chat-composer>
       </div>
     `;
     }
@@ -81,6 +81,6 @@ export class SamiChat extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'sami-chat': SamiChat;
+        'agent-chat': AgentChat;
     }
 }
