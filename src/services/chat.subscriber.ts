@@ -7,6 +7,7 @@ import type {
     AgentSubscriberParams
 } from "@ag-ui/client";
 import { ChatService } from "./chat.service";
+import { inspectorService } from "./inspector.service";
 
 export class ChatSubscriber implements AgentSubscriber {
     private service: ChatService;
@@ -15,17 +16,20 @@ export class ChatSubscriber implements AgentSubscriber {
         this.service = service;
     }
 
-    onRunStartedEvent(_params: { event: RunStartedEvent } & AgentSubscriberParams) {
+    onRunStartedEvent(params: { event: RunStartedEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onRunStartedEvent', params.event);
         // Show thinking animation
         this.service.addPlaceholderMessage();
     }
 
     onTextMessageStartEvent(params: { event: TextMessageStartEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onTextMessageStartEvent', params.event);
         // Switch from thinking to streaming text
         this.service.prepareMessageForStreaming(params.event.messageId);
     }
 
     onTextMessageContentEvent(params: { event: TextMessageContentEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onTextMessageContentEvent', params.event);
         // Add chunk
         // The event has 'delta' prop for the new content chunk
         // @ts-ignore - The type definition might be slightly off in local vs package, ensuring we use delta
@@ -34,6 +38,7 @@ export class ChatSubscriber implements AgentSubscriber {
     }
 
     onMessagesSnapshotEvent(params: { event: MessagesSnapshotEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onMessagesSnapshotEvent', params.event);
         // Sync full state, mapping to our local Message type
         const messages = params.event.messages.map(msg => {
             let content = "";

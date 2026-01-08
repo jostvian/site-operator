@@ -6,7 +6,9 @@ import './chat-thread';
 import './chat-composer';
 import type { ConversationSummary, AgentState } from '../models/chat.types';
 import './chat-history-list';
+import './inspector-window';
 import { ChatController } from '../hooks/chat.controller';
+import { ToolIcon } from '../icons';
 
 
 @customElement('agent-chat')
@@ -20,6 +22,8 @@ export class AgentChat extends LitElement {
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
 
     @state() private _historyOpen = false;
+    @state() private _inspectorOpen = false;
+    @state() private _inspectorEnabled = false;
     @state() private _conversations: ConversationSummary[] = [
         { id: '1', title: 'Planificación de Proyecto' },
         { id: '2', title: 'Consultas de API' },
@@ -30,8 +34,10 @@ export class AgentChat extends LitElement {
         if (changedProperties.has('backendUrl') || changedProperties.has('appName')) {
             this._chatController.initialize({
                 backendUrl: this.backendUrl,
-                appName: this.appName
+                appName: this.appName,
+                inspector: this.hasAttribute('inspector') || (this as any).inspector
             });
+            this._inspectorEnabled = this.hasAttribute('inspector') || (this as any).inspector;
         }
     }
 
@@ -60,6 +66,10 @@ export class AgentChat extends LitElement {
         this._historyOpen = false;
     }
 
+    private _toggleInspector() {
+        this._inspectorOpen = !this._inspectorOpen;
+    }
+
     render() {
         return html`
       <div class="chat-layout">
@@ -78,6 +88,16 @@ export class AgentChat extends LitElement {
             .agentAvatar="${this.agentAvatar}">
         </agent-chat-thread>
         <agent-chat-composer ?isRunning="${this._chatController.thread.isRunning}" @send="${this._handleSend}"></agent-chat-composer>
+
+        ${this._inspectorEnabled ? html`
+          <button class="inspector-toggle" @click="${this._toggleInspector}" title="Inspector">
+            ${ToolIcon}
+          </button>
+        ` : ''}
+
+        ${this._inspectorOpen ? html`
+          <agent-inspector-window @close="${this._toggleInspector}"></agent-inspector-window>
+        ` : ''}
       </div>
     `;
     }
