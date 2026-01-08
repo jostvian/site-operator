@@ -1,5 +1,5 @@
 import { HttpAgent } from "@ag-ui/client";
-import type { ChatThread, Message } from "../models/chat.types";
+import type { ChatThread, Message, AgentState } from "../models/chat.types";
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 
@@ -10,6 +10,7 @@ export class ChatService extends EventTarget {
         messages: [],
         isRunning: false,
     };
+    private _appContext: AgentState | null = null;
 
     private subscriber: ChatSubscriber;
 
@@ -26,6 +27,16 @@ export class ChatService extends EventTarget {
 
     get thread() {
         return this._thread;
+    }
+
+    /**
+     * Establece el contexto de la aplicación para el agente.
+     * Este contexto se envía en cada mensaje.
+     * @param context El contexto de la aplicación (AgentState)
+     */
+    setAppContext(context: AgentState) {
+        this._appContext = context;
+        this.notify();
     }
 
     async sendMessage(content: string) {
@@ -50,6 +61,7 @@ export class ChatService extends EventTarget {
             // Configure agent
             this.agent.threadId = this._thread.id;
 
+
             // Add only the new message
             this.agent.addMessage({
                 id: userMsg.id,
@@ -58,7 +70,23 @@ export class ChatService extends EventTarget {
             });
 
             // Run the agent with subscriber
-            await this.agent.runAgent({}, this.subscriber);
+            const contextItems = [
+                {
+                    value: new Date().toLocaleString(),
+                    description: "Current date and time"
+                }
+            ];
+
+            if (this._appContext) {
+                contextItems.push({
+                    value: JSON.stringify(this._appContext),
+                    description: "AgentState"
+                });
+            }
+
+            await this.agent.runAgent({
+                context: contextItems
+            }, this.subscriber);
 
         } catch (error) {
             console.error("Failed to send message", error);

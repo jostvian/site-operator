@@ -19,3 +19,14 @@ export interface ConversationSummary {
     id: string;
     title: string;
 }
+
+/**
+ * Representa el estado del agente y el contexto de la aplicación
+ * donde se encuentra embebido el chat.
+ */
+export interface AgentState {
+    /** Nombre del portal donde se ejecuta el chat */
+    app_name: string;
+    /** Nombre de la página donde se está ejecutando */
+    current_page: string;
+}
