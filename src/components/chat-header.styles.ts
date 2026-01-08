@@ -16,10 +16,16 @@ export const styles = css`
     backdrop-filter: blur(4px);
   }
 
+
   h1 {
     margin: 0;
     font-size: 1.125rem; /* 18px */
     font-weight: 600;
     color: var(--sami-text-foreground, #09090b);
+  }
+
+  .actions {
+      display: flex;
+      gap: 0.5rem;
   }
 `;
