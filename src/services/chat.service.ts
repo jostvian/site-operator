@@ -19,10 +19,18 @@ export class ChatService extends EventTarget {
         this.subscriber = new ChatSubscriber(this);
     }
 
-    initialize(config: { backendUrl: string }) {
+    /**
+     * Inicializa el servicio de chat con una URL de backend y el nombre de la aplicación.
+     * @param config Configuración de inicialización.
+     */
+    initialize(config: { backendUrl: string, appName: string }) {
         this.agent = new HttpAgent({
             url: config.backendUrl,
         });
+        this._appContext = {
+            appName: config.appName,
+            currentPage: 'home'
+        };
     }
 
     get thread() {

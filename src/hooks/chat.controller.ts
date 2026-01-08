@@ -19,7 +19,11 @@ export class ChatController implements ReactiveController {
      * Inicializa el servicio de chat con una URL de backend.
      * @param config Configuración de inicialización.
      */
-    initialize(config: { backendUrl: string }) {
+    /**
+     * Inicializa el servicio de chat con una URL de backend y el nombre de la aplicación.
+     * @param config Configuración de inicialización.
+     */
+    initialize(config: { backendUrl: string, appName: string }) {
         return chatService.initialize(config);
     }
 
