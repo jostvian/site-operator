@@ -15,6 +15,7 @@ export class AgentChat extends LitElement {
 
     private _chatController = new ChatController(this);
     @property({ type: String, attribute: 'backend-url' }) backendUrl = 'http://localhost:8001/ag_ui';
+    @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
 
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
 
@@ -26,8 +27,11 @@ export class AgentChat extends LitElement {
     ];
 
     willUpdate(changedProperties: Map<string, any>) {
-        if (changedProperties.has('backendUrl')) {
-            this._chatController.initialize({ backendUrl: this.backendUrl });
+        if (changedProperties.has('backendUrl') || changedProperties.has('appName')) {
+            this._chatController.initialize({
+                backendUrl: this.backendUrl,
+                appName: this.appName
+            });
         }
     }
 
