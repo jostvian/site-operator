@@ -8,8 +8,14 @@ export interface Message {
     isThinking?: boolean;
 }
 
+
 export interface ChatThread {
     id: string;
     messages: Message[];
     isRunning: boolean;
+}
+
+export interface ConversationSummary {
+    id: string;
+    title: string;
 }
