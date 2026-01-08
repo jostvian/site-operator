@@ -2,6 +2,7 @@ import { HttpAgent } from "@ag-ui/client";
 import type { ChatThread, Message, AgentState } from "../models/chat.types";
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
+import { inspectorService } from "./inspector.service";
 
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
@@ -23,14 +24,17 @@ export class ChatService extends EventTarget {
      * Inicializa el servicio de chat con una URL de backend y el nombre de la aplicación.
      * @param config Configuración de inicialización.
      */
-    initialize(config: { backendUrl: string, appName: string }) {
+    initialize(config: { backendUrl: string, appName: string, inspector?: boolean }) {
         this.agent = new HttpAgent({
             url: config.backendUrl,
         });
         this._appContext = {
             appName: config.appName,
-            currentPage: 'home'
+            currentPage: 'home',
+            inspector: config.inspector
         };
+        inspectorService.setContext(this._appContext);
+        inspectorService.setMessages(this._thread.messages);
     }
 
     get thread() {
@@ -44,6 +48,7 @@ export class ChatService extends EventTarget {
      */
     setAppContext(context: AgentState) {
         this._appContext = context;
+        inspectorService.setContext(context);
         this.notify();
     }
 
@@ -161,6 +166,7 @@ export class ChatService extends EventTarget {
     }
 
     private notify() {
+        inspectorService.setMessages(this._thread.messages);
         this.dispatchEvent(new CustomEvent("state-change"));
     }
 }

@@ -30,4 +30,29 @@ export const styles = css`
       padding-bottom: 8rem; /* Space for composer */
   }
 
+  .inspector-toggle {
+    position: absolute;
+    bottom: 110px;
+    left: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+    z-index: 999;
+  }
+
+  .inspector-toggle:hover {
+    background: #f3f4f6;
+    color: #111827;
+    transform: scale(1.1);
+  }
+
 `;

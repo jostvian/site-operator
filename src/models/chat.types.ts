@@ -29,4 +29,12 @@ export interface AgentState {
     appName: string;
     /** Nombre de la página donde se está ejecutando */
     currentPage: string;
+    /** Habilita la ventana de inspección */
+    inspector?: boolean;
+}
+
+export interface InspectorEvent {
+    event: string;
+    content: any;
+    time: string;
 }
