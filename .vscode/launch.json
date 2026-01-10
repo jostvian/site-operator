@@ -7,7 +7,15 @@
             "name": "Launch Chrome against localhost",
             "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}",
+            "userDataDir": "/home/jostvian/.gemini/antigravity-browser-profile",
             "preLaunchTask": "npm: dev"
+        },
+        {
+            "type": "chrome",
+            "request": "attach",
+            "name": "Attach to Chrome",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }
