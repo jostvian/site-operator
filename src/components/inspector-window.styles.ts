@@ -25,6 +25,8 @@ export const styles = css`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: move;
+    user-select: none;
   }
 
   .header h3 {
