@@ -14,11 +14,10 @@ export class ConversationService {
 
     /**
      * Obtiene todas las conversaciones de un usuario.
-     * @param userId ID del usuario
      * @returns Promesa con el listado de conversaciones
      */
-    async getConversations(userId: string): Promise<Conversation[]> {
-        const response = await fetch(`${this.baseUrl}?userId=${userId}`);
+    async getConversations(): Promise<Conversation[]> {
+        const response = await fetch(`${this.baseUrl}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch conversations: ${response.statusText}`);
         }

@@ -51,6 +51,13 @@ export class ChatController implements ReactiveController {
     }
 
     /**
+     * Retorna el listado de conversaciones recientes.
+     */
+    get conversations() {
+        return chatService.conversations;
+    }
+
+    /**
      * Envía un mensaje a través del servicio.
      * @param content Contenido del mensaje.
      */

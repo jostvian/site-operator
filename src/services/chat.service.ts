@@ -1,5 +1,5 @@
 import { HttpAgent } from "@ag-ui/client";
-import type { ChatThread, Message, AgentState } from "../models/chat.types";
+import type { ChatThread, Message, AgentState, ConversationSummary } from "../models/chat.types";
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
@@ -12,6 +12,7 @@ export class ChatService extends EventTarget {
         messages: [],
         isRunning: false,
     };
+    private _conversations: ConversationSummary[] = [];
     private _appContext: AgentState | null = null;
 
     private subscriber: ChatSubscriber;
@@ -36,10 +37,15 @@ export class ChatService extends EventTarget {
         };
         inspectorService.setContext(this._appContext);
         inspectorService.setMessages(this._thread.messages);
+        this.refreshConversations();
     }
 
     get thread() {
         return this._thread;
+    }
+
+    get conversations() {
+        return this._conversations;
     }
 
     /**
@@ -120,6 +126,7 @@ export class ChatService extends EventTarget {
         } finally {
             this._thread.isRunning = false;
             this.notify();
+            this.refreshConversations();
         }
     }
 
@@ -182,6 +189,22 @@ export class ChatService extends EventTarget {
         }
 
         this.notify();
+    }
+
+    /**
+     * Refresca la lista de conversaciones desde el servicio de conversaciones.
+     */
+    async refreshConversations() {
+        try {
+            const conversations = await conversationService.getConversations();
+            this._conversations = conversations.map(c => ({
+                id: c.id,
+                title: c.title
+            }));
+            this.notify();
+        } catch (error) {
+            console.error("Failed to refresh conversations", error);
+        }
     }
 
     private notify() {
