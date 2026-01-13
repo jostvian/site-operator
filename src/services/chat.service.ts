@@ -3,6 +3,7 @@ import type { ChatThread, Message, AgentState } from "../models/chat.types";
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
+import { conversationService } from "./conversation.service";
 
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
@@ -156,13 +157,32 @@ export class ChatService extends EventTarget {
         this.notify();
     }
 
-    startNewThread() {
-        this._thread = {
-            id: generateId("thread"),
-            messages: [],
-            isRunning: false
-        };
-        this.notify();
+    async startNewThread() {
+        try {
+            // Optimistic update locally
+            const tempId = generateId("thread");
+            this._thread = {
+                id: tempId,
+                messages: [],
+                isRunning: false
+            };
+            this.notify();
+
+            // Create conversation in backend
+            const newConversation = await conversationService.createConversation({ title: "Nueva conversación" });
+
+            // Update thread with real ID
+            this._thread.id = newConversation.id;
+
+            // If the agent was already initialized with a threadId, update it
+            if (this.agent) {
+                this.agent.threadId = this._thread.id;
+            }
+
+            this.notify();
+        } catch (error) {
+            console.error("Failed to create new conversation", error);
+        }
     }
 
     private notify() {
