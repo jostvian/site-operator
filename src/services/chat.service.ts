@@ -37,7 +37,6 @@ export class ChatService extends EventTarget {
         };
         inspectorService.setContext(this._appContext);
         inspectorService.setMessages(this._thread.messages);
-        this.refreshConversations();
     }
 
     get thread() {
@@ -115,6 +114,7 @@ export class ChatService extends EventTarget {
                     description: "AgentState"
                 });
             }
+            this.agent.state = this._appContext;
 
             await this.agent.runAgent({
                 context: contextItems
@@ -126,7 +126,6 @@ export class ChatService extends EventTarget {
         } finally {
             this._thread.isRunning = false;
             this.notify();
-            this.refreshConversations();
         }
     }
 

@@ -58,6 +58,9 @@ export class AgentChat extends LitElement {
 
     private _toggleHistory() {
         this._historyOpen = !this._historyOpen;
+        if (this._historyOpen) {
+            this._chatController.refreshConversations();
+        }
     }
 
     private _handleSelectThread(e: CustomEvent) {

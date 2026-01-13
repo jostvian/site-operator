@@ -81,6 +81,13 @@ export class ChatController implements ReactiveController {
     }
 
     /**
+     * Refresca el listado de conversaciones desde el servidor.
+     */
+    refreshConversations() {
+        return chatService.refreshConversations();
+    }
+
+    /**
      * Manejador interno para cambios de estado.
      * Llama a requestUpdate() en el host para forzar el renderizado.
      */
