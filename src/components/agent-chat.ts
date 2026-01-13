@@ -10,6 +10,10 @@ import './inspector-window';
 import { ChatController } from '../hooks/chat.controller';
 import { ToolIcon } from '../icons';
 
+import { fetchInterceptorService } from '../services/fetch-interceptor.service';
+
+// Initialize fetch interceptor for testing purposes
+fetchInterceptorService.init();
 
 @customElement('agent-chat')
 export class AgentChat extends LitElement {

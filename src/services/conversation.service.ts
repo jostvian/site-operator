@@ -27,16 +27,21 @@ export class ConversationService {
 
     /**
      * Crea una nueva conversación.
-     * @param conversation Datos de la conversación a crear (incluyendo title y userId)
+     * @param conversation Datos de la conversación a crear.
      * @returns Promesa con la conversación creada
      */
-    async createConversation(conversation: Omit<Conversation, 'id'>): Promise<Conversation> {
+    async createConversation(conversation: Partial<Pick<Conversation, 'title'>>): Promise<Conversation> {
+        const payload = {
+            ...conversation,
+            title: conversation.title || "Nueva conversación"
+        };
+
         const response = await fetch(this.baseUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(conversation),
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
