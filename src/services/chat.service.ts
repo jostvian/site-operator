@@ -8,7 +8,7 @@ import { conversationService } from "./conversation.service";
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
     private _thread: ChatThread = {
-        id: generateId("thread"),
+        id: "",
         messages: [],
         isRunning: false,
     };
@@ -59,6 +59,18 @@ export class ChatService extends EventTarget {
             return;
         }
 
+        // Create conversation if it doesn't exist
+        if (!this._thread.id) {
+            try {
+                const newConversation = await conversationService.createConversation({ title: content.slice(0, 30) + (content.length > 30 ? "..." : "") });
+                this._thread.id = newConversation.id;
+                this.agent.threadId = this._thread.id;
+            } catch (error) {
+                console.error("Failed to create conversation during sendMessage", error);
+                return; // Stop if we can't create a conversation
+            }
+        }
+
         // Optimistic update
         const userMsg: Message = {
             id: generateId("message"),
@@ -72,7 +84,7 @@ export class ChatService extends EventTarget {
         this.notify();
 
         try {
-            // Configure agent
+            // Configure agent (redundant but safe)
             this.agent.threadId = this._thread.id;
 
 
@@ -158,31 +170,18 @@ export class ChatService extends EventTarget {
     }
 
     async startNewThread() {
-        try {
-            // Optimistic update locally
-            const tempId = generateId("thread");
-            this._thread = {
-                id: tempId,
-                messages: [],
-                isRunning: false
-            };
-            this.notify();
+        // Just reset locally. Conversation will be created on first message.
+        this._thread = {
+            id: "",
+            messages: [],
+            isRunning: false
+        };
 
-            // Create conversation in backend
-            const newConversation = await conversationService.createConversation({ title: "Nueva conversación" });
-
-            // Update thread with real ID
-            this._thread.id = newConversation.id;
-
-            // If the agent was already initialized with a threadId, update it
-            if (this.agent) {
-                this.agent.threadId = this._thread.id;
-            }
-
-            this.notify();
-        } catch (error) {
-            console.error("Failed to create new conversation", error);
+        if (this.agent) {
+            this.agent.threadId = "";
         }
+
+        this.notify();
     }
 
     private notify() {
