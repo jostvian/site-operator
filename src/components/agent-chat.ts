@@ -4,7 +4,7 @@ import { styles } from './agent-chat.styles';
 import './chat-header';
 import './chat-thread';
 import './chat-composer';
-import type { ConversationSummary, AgentState } from '../models/chat.types';
+import type { AgentState } from '../models/chat.types';
 import './chat-history-list';
 import './inspector-window';
 import { ChatController } from '../hooks/chat.controller';
@@ -28,11 +28,6 @@ export class AgentChat extends LitElement {
     @state() private _historyOpen = false;
     @state() private _inspectorOpen = false;
     @state() private _inspectorEnabled = false;
-    @state() private _conversations: ConversationSummary[] = [
-        { id: '1', title: 'Planificación de Proyecto' },
-        { id: '2', title: 'Consultas de API' },
-        { id: '3', title: 'Ideas de Diseño' }
-    ];
 
     willUpdate(changedProperties: Map<string, any>) {
         if (changedProperties.has('backendUrl') || changedProperties.has('appName')) {
@@ -82,7 +77,7 @@ export class AgentChat extends LitElement {
             @toggle-history="${this._toggleHistory}"
         ></agent-chat-header>
         <agent-chat-history-list 
-            .conversations="${this._conversations}" 
+            .conversations="${this._chatController.conversations}" 
             ?open="${this._historyOpen}"
             @select-thread="${this._handleSelectThread}"
         ></agent-chat-history-list>
