@@ -4,7 +4,8 @@ import type {
     TextMessageStartEvent,
     TextMessageContentEvent,
     MessagesSnapshotEvent,
-    AgentSubscriberParams
+    AgentSubscriberParams,
+    ToolCallEndEvent
 } from "@ag-ui/client";
 import { ChatService } from "./chat.service";
 import { inspectorService } from "./inspector.service";
@@ -100,6 +101,14 @@ export class ChatSubscriber implements AgentSubscriber {
             // For now, I will just execute it. The user said "llamado por tu runtime cuando llega client_tool_call".
 
             console.log('ChatSubscriber: executePlan result', result);
+        }
+    }
+
+    async onClientToolCall(params: { event: any, toolName: string, args: any } & AgentSubscriberParams) {
+        inspectorService.addEvent('onClientToolCall', params.event);
+        if (params.toolName === 'executePlan') {
+            console.log('ChatSubscriber: Received executePlan client tool call', params.args);
+            await chatPortalService.executePlan(params.args as NavPlan);
         }
     }
 }

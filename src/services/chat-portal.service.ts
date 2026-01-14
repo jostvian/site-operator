@@ -1,4 +1,4 @@
-import { ChatPortalAPI, NavPlan, PortalSpec } from '../models/portal.types';
+import type { ChatPortalAPI, PortalSpec, NavPlan } from "../models/portal.types";
 
 export class ChatPortalService implements ChatPortalAPI {
     private _spec: PortalSpec | null = null;
@@ -28,13 +28,13 @@ export class ChatPortalService implements ChatPortalAPI {
 
         try {
             for (const step of plan.steps) {
-                const actionFn = this._spec.actions[step.name];
+                const actionFn = this._spec.actions[step.action];
                 if (actionFn) {
-                    console.log(`Executing portal action: ${step.name}`, step.args);
+                    console.log(`Executing portal action: ${step.action}`, step.args);
                     await actionFn(step.args);
                 } else {
-                    console.warn(`Action ${step.name} not found in portal spec.`);
-                    throw new Error(`Action ${step.name} not found`);
+                    console.warn(`Action ${step.action} not found in portal spec.`);
+                    throw new Error(`Action ${step.action} not found`);
                 }
             }
             return { status: "ok" };
