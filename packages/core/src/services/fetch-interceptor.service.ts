@@ -1,11 +1,9 @@
-import fetchIntercept from 'fetch-intercept';
-
 /**
  * Service to manage fetch interceptions.
  * This is primarily used for development and testing purposes to inject headers or log requests.
  */
 export class FetchInterceptorService {
-    private unregister: (() => void) | null = null;
+    private originalFetch = window.fetch;
     private _isEnabled = false;
 
     /**
@@ -22,16 +20,13 @@ export class FetchInterceptorService {
      * This method should only be called in development environments.
      */
     public init(): void {
-        // Only allow in development mode if strictly needed, 
-        // but here we just check if it's already registered.
-        if (this.unregister) {
-            this.unregister();
-        }
+        if (this._isEnabled) return;
 
-        this.unregister = fetchIntercept.register({
-            request: (url, config) => {
+        const self = this;
+        window.fetch = async function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+            try {
                 // Create headers if they don't exist
-                const headers = new Headers(config?.headers || {});
+                const headers = new Headers(init?.headers || {});
 
                 // Add test authorization header if it doesn't exist
                 // Using VITE_TEST_AUTH_TOKEN from environment if available
@@ -40,36 +35,25 @@ export class FetchInterceptorService {
                     headers.append('Authorization', `Bearer ${token}`);
                 }
 
-                // Return updated config
-                return [url, { ...config, headers }];
-            },
-
-            requestError: (error) => {
-                return Promise.reject(error);
-            },
-
-            response: (response) => {
-                return response;
-            },
-
-            responseError: (error) => {
+                // Call original fetch with updated config
+                return self.originalFetch(input, { ...init, headers });
+            } catch (error) {
                 return Promise.reject(error);
             }
-        });
+        };
 
         this._isEnabled = true;
-        console.log('Fetch interceptor initialized with test Authorization header.');
+        console.log('Fetch interceptor initialized with test Authorization header (Native implementation).');
     }
 
     /**
      * Disables the fetch interceptor.
      */
     public destroy(): void {
-        if (this.unregister) {
-            this.unregister();
-            this.unregister = null;
+        if (this._isEnabled) {
+            window.fetch = this.originalFetch;
             this._isEnabled = false;
-            console.log('Fetch interceptor destroyed.');
+            console.log('Fetch interceptor destroyed (Native implementation).');
         }
     }
 }
