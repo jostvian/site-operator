@@ -2,6 +2,8 @@ import './components/agent-chat';
 
 
 export * from './components/agent-chat';
+export * from './services/chat-portal.service';
+export * from './models/portal.types';
 
 /**
  * Mounts the Agent Chat component to a target element.

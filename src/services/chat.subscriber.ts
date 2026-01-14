@@ -8,6 +8,8 @@ import type {
 } from "@ag-ui/client";
 import { ChatService } from "./chat.service";
 import { inspectorService } from "./inspector.service";
+import { chatPortalService } from "./chat-portal.service";
+import type { NavPlan } from "../models/portal.types";
 
 export class ChatSubscriber implements AgentSubscriber {
     private service: ChatService;
@@ -62,5 +64,42 @@ export class ChatSubscriber implements AgentSubscriber {
             };
         });
         this.service.setMessages(messages);
+        this.service.setMessages(messages);
+    }
+
+    async onToolCallEndEvent(params: {
+        event: ToolCallEndEvent;
+        toolCallName: string;
+        toolCallArgs: Record<string, any>;
+    } & AgentSubscriberParams) {
+        inspectorService.addEvent('onToolCallEndEvent', params.event);
+
+        if (params.toolCallName === 'executePlan') {
+            console.log('ChatSubscriber: Received executePlan tool call', params.toolCallArgs);
+            // Assuming args match NavPlan structure or are equal to it
+            // implementation details: args might be { plan: ... } or just the plan properties
+            // Based on user snippet `executePlan(plan: NavPlan)`, the agent likely sends the plan object.
+            // If the tool definition takes a single argument 'plan', then args.plan is what we want.
+            // If the tool definition flattens it, args *is* the plan.
+            // Let's assume args *is* the plan or contains it.
+            // Safest bet: pass args as NavPlan
+
+            const result = await chatPortalService.executePlan(params.toolCallArgs as unknown as NavPlan);
+
+            // We might want to send the result back to the agent?
+            // The subscriber returns MaybePromise<AgentStateMutation | void>.
+            // It doesn't seem to support returning a tool result directly to the agent runtime via this return.
+            // Usually the runtime handles tool execution. 
+            // If this is a CLIENT SIDE tool, we are responsible for executing it.
+            // But how does the result get back to the LLM? 
+            // `onToolCallResultEvent` is when a result is available.
+
+            // If the backend agent is "waiting" for this tool, it expects a submission.
+            // Since this is a custom client implementation, maybe we need to send a new message with the tool result?
+            // Or maybe the `ag-ui` client handles this automatically if we use a specific middleware?
+            // For now, I will just execute it. The user said "llamado por tu runtime cuando llega client_tool_call".
+
+            console.log('ChatSubscriber: executePlan result', result);
+        }
     }
 }
