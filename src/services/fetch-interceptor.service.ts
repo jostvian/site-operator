@@ -19,7 +19,7 @@ export class FetchInterceptorService {
         this.unregister = fetchIntercept.register({
             request: (url, config) => {
                 // Create headers if they don't exist
-                const headers = new Headers(config.headers || {});
+                const headers = new Headers(config?.headers || {});
 
                 // Add test authorization header if it doesn't exist
                 if (!headers.has('Authorization')) {
