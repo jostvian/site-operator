@@ -49,17 +49,28 @@ export const styles = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: var(--agent-radius-full, 9999px);
-    background-color: var(--agent-bg-black, #09090b);
-    color: var(--agent-text-white, #ffffff);
-    transition: opacity 0.2s;
+    background-color: transparent;
+    border: 1.5px solid transparent;
+    color: var(--agent-text-foreground, #09090b);
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
+  }
+
+  .action-button:hover:not(:disabled) {
+    border-color: #22c55e;
+    color: #22c55e;
+    background-color: #22c55e10;
+  }
+
+  .action-button:hover:not(:disabled) svg {
+    fill: #22c55e20; /* Subtle fill for "relleno" feeling */
   }
   
   .action-button:disabled {
-      opacity: 0.1;
+      opacity: 0.3;
       cursor: not-allowed;
   }
 
