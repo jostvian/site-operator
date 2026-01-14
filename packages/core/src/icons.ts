@@ -1,18 +1,42 @@
 import { html } from 'lit';
 
-export const PlusIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 2.75C8 2.47386 7.77614 2.25 7.5 2.25C7.22386 2.25 7 2.47386 7 2.75V7H2.75C2.47386 7 2.25 7.22386 2.25 7.5C2.25 7.77614 2.47386 8 2.75 8H7V12.25C7 12.5261 7.22386 12.75 7.5 12.75C7.77614 12.75 8 12.5261 8 12.25V8H12.25C12.5261 8 12.75 7.77614 12.75 7.5C12.75 7.22386 12.5261 7 12.25 7H8V2.75Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>`;
+export const PlusIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus">
+  <path d="M5 12h14" />
+  <path d="M12 5v14" />
+</svg>`;
 
-export const ArrowUpIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.14645 2.14645C7.34171 1.95118 7.65829 1.95118 7.85355 2.14645L11.8536 6.14645C12.0488 6.34171 12.0488 6.65829 11.8536 6.85355C11.6583 7.04882 11.3417 7.04882 11.1464 6.85355L8 3.70711L8 12.5C8 12.7761 7.77614 13 7.5 13C7.22386 13 7 12.7761 7 12.5L7 3.70711L3.85355 6.85355C3.65829 7.04882 3.34171 7.04882 3.14645 6.85355C2.95118 6.65829 2.95118 6.34171 3.14645 6.14645L7.14645 2.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>`;
+export const SendIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
+  <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
+  <path d="m21.854 2.147-10.94 10.939" />
+</svg>`;
 
-export const CopyIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00006H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50006C5 4.67163 5.67157 4.00006 6.5 4.00006H13.5C14.3284 4.00006 15 4.67163 15 5.50006V12.5001C15 13.3285 14.3284 14.0001 13.5 14.0001H6.5C5.67157 14.0001 5 13.3285 5 12.5001V5.50006ZM6.5 5.00006H13.5C13.7761 5.00006 14 5.22392 14 5.50006V12.5001C14 12.7762 13.7761 13.0001 13.5 13.0001H6.5C6.22386 13.0001 6 12.7762 6 12.5001V5.50006C6 5.22392 6.22386 5.00006 6.5 5.00006Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>`;
+export const CopyIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy">
+  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+</svg>`;
 
-export const ReloadIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.84998 7.49998C1.84998 4.6145 4.05979 2.21843 6.90545 1.91456V3.35016C4.97851 3.63937 3.49998 5.37979 3.49998 7.49998C3.49998 9.87062 5.27476 11.83 7.59505 12.0805C7.97776 12.1218 8.36856 12.1009 8.75239 12.0197C9.35912 11.8913 9.93282 11.6601 10.4552 11.3396C10.9575 11.0315 11.413 10.6548 11.8016 10.2195L10.9701 9.47743C10.6599 9.82496 10.2974 10.1246 9.89728 10.3701C9.6433 10.5259 9.37532 10.6559 9.09678 10.7578C9.09678 10.7578 9.09575 10.7582 9.09472 10.7586C9.01824 10.7876 8.94119 10.8142 8.8636 10.8384C8.42306 10.9757 7.96263 11.0252 7.49998 10.979C5.77663 10.8066 4.35928 9.43926 4.19539 7.71618L4.19539 7.71616C4.19065 7.66632 4.18663 7.61633 4.18335 7.56621C4.15928 7.19912 4.22558 6.83296 4.37349 6.49474L3.13488 5.7513C2.69344 6.36842 2.37893 7.07821 2.22687 7.8388C2.22271 7.8596 2.21862 7.88045 2.21461 7.90135C1.98632 9.09062 2.25732 10.3395 2.9497 11.3972L1.65039 12.5C0.73507 11.1017 0.366914 9.42169 0.672935 7.82827C0.725964 7.5522 0.813075 7.28383 0.93043 7.02568L1.84998 7.49998ZM13.849 5.89437C14.1554 6.36262 14.394 6.87979 14.5458 7.43004C14.5503 7.44641 14.5547 7.46281 14.5591 7.47924C14.8087 8.41443 14.7865 9.40028 14.5029 10.3232L12.9856 9.85698C13.1979 9.16629 13.208 8.43555 13.0211 7.74477L13.0211 7.74474C13.0205 7.74233 13.0198 7.73992 13.0192 7.73751C12.915 7.35952 12.7511 7.00424 12.5407 6.68267L13.849 5.89437ZM8.08544 13.0854L7.54452 7.49998H11.4999L8.08544 4.41452V13.0854Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>`;
+export const ReloadIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-cw">
+  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+</svg>`;
 
-export const CheckIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.4669 3.72684C11.7558 3.91574 11.8369 4.30308 11.648 4.59198L7.39799 11.092C7.29783 11.2452 7.13556 11.3467 6.95402 11.3699C6.77247 11.3931 6.58989 11.3355 6.45446 11.2124L3.70446 8.71241C3.44905 8.48022 3.43023 8.08494 3.66242 7.82953C3.89461 7.57412 4.28989 7.55529 4.5453 7.78749L6.75292 9.79441L10.6018 3.90792C10.7907 3.61902 11.178 3.53795 11.4669 3.72684Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>`;
+export const StopIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square">
+  <rect width="18" height="18" x="3" y="3" rx="2" />
+</svg>`;
 
+export const HistoryIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history">
+  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+  <path d="M3 3v5h5" />
+  <path d="M12 7v5l4 2" />
+</svg>`;
 
-export const StopIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.75" y="3.75" width="7.5" height="7.5" fill="currentColor"></rect></svg>`;
-
-export const HistoryIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 7.5C1.5 4.18629 4.18629 1.5 7.5 1.5C10.8137 1.5 13.5 4.18629 13.5 7.5C13.5 10.8137 10.8137 13.5 7.5 13.5C4.18629 13.5 1.5 10.8137 1.5 7.5ZM2.5 7.5C2.5 4.73858 4.73858 2.5 7.5 2.5C10.2614 2.5 12.5 4.73858 12.5 7.5C12.5 10.2614 10.8137 12.5 7.5 12.5C4.73858 12.5 2.5 10.2614 2.5 7.5ZM8 4.5V7.25L9.94491 9.19491L9.2378 9.90202L7 7.66421V4.5H8Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path><path d="M0.5 7.5H2.5L1.5 5.5L0.5 7.5Z" fill="currentColor"/></svg>`;
-
-export const ToolIcon = html`<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.8536 2.14645C12.6583 1.95118 12.3417 1.95118 12.1464 2.14645L10.5 3.79289L8.35355 1.64645C8.15829 1.45118 7.84171 1.45118 7.64645 1.64645L1.64645 7.64645C1.45118 7.84171 1.45118 8.15829 1.64645 8.35355L3.79289 10.5L2.14645 12.1464C1.95118 12.3417 1.95118 12.6583 2.14645 12.8536L2.85355 13.5607C3.04882 13.7559 3.3654 13.7559 3.56066 13.5607L5.20711 11.9142L7.35355 14.0607C7.54882 14.2559 7.8654 14.2559 8.06066 14.0607L14.0607 8.06066C14.2559 7.8654 14.2559 7.54882 14.0607 7.35355L11.9142 5.20711L13.5607 3.56066C13.7559 3.3654 13.7559 3.04882 13.5607 2.85355L12.8536 2.14645ZM11.2071 5.91421L13.3536 8.06066L8.06066 13.3536L5.91421 11.2071L8.35355 8.76777C8.54882 8.57251 8.54882 8.25593 8.35355 8.06066C8.15829 7.8654 7.84171 7.8654 7.64645 8.06066L5.20711 10.5L3.35355 8.64645L8.64645 3.35355L10.5 5.20711L8.85355 6.85355C8.65829 7.04882 8.65829 7.3654 8.85355 7.56066C9.04882 7.75593 9.3654 7.75593 9.56066 7.56066L11.2071 5.91421Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>`;
+export const ToolIcon = html`
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench">
+  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" />
+</svg>`;

@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { styles } from './chat-composer.styles';
-import { ArrowUpIcon, StopIcon } from '../icons';
+import { SendIcon, StopIcon } from '../icons';
 
 @customElement('agent-chat-composer')
 export class ChatComposer extends LitElement {
@@ -59,7 +59,7 @@ export class ChatComposer extends LitElement {
         
         ${this.isRunning
                 ? html`<button class="action-button" @click="${this._handleStop}">${StopIcon}</button>`
-                : html`<button class="action-button" ?disabled="${!this._value.trim()}" @click="${this._handleSubmit}">${ArrowUpIcon}</button>`
+                : html`<button class="action-button" ?disabled="${!this._value.trim()}" @click="${this._handleSubmit}">${SendIcon}</button>`
             }
       </div>
       <p class="disclaimer">
