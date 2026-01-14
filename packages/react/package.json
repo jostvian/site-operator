@@ -1,6 +1,6 @@
 {
   "name": "site-operator-react",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "React wrapper for site-operator, providing AgentChat component and hooks.",
   "type": "module",
   "author": "jostvian",

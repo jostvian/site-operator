@@ -1,7 +1,7 @@
 {
   "name": "site-operator",
   "private": false,
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "A framework-agnostic AI chat widget that acts as a copilot for host applications.",
   "type": "module",
   "author": "jostvian",
@@ -60,10 +60,6 @@
         "dist/**"
       ]
     }
-  },
-  "dependencies": {
-    "@lucide/lab": "^0.1.2",
-    "lucide-static": "^0.562.0"
   },
   "peerDependencies": {
     "@ag-ui/client": "^0.0.42"
