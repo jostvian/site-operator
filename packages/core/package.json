@@ -1,8 +1,20 @@
 {
   "name": "site-operator",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
+  "description": "A framework-agnostic AI chat widget that acts as a copilot for host applications.",
   "type": "module",
+  "author": "jostvian-agent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jostvian-agent/site-operator.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/jostvian-agent/site-operator/issues"
+  },
+  "homepage": "https://github.com/jostvian-agent/site-operator#readme",
   "scripts": {
     "dev": "wireit",
     "build": "wireit",

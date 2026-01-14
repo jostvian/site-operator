@@ -1,7 +1,19 @@
 {
   "name": "site-operator-react",
   "version": "0.1.0",
+  "description": "React wrapper for site-operator, providing AgentChat component and hooks.",
   "type": "module",
+  "author": "jostvian-agent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jostvian-agent/site-operator.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/jostvian-agent/site-operator/issues"
+  },
+  "homepage": "https://github.com/jostvian-agent/site-operator#readme",
   "main": "./dist/site-operator-react.umd.js",
   "module": "./dist/site-operator-react.es.js",
   "types": "./dist/index.d.ts",
