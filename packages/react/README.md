@@ -29,6 +29,7 @@ function App() {
         agentAvatar="/avatar.png"
         disclaimer="Agent puede cometer errores. Verifica la información importante"
         emptyText="¿Cómo puedo ayudarte hoy?"
+        placeholder="Enviar un mensaje a Agent"
       />
     </div>
   );

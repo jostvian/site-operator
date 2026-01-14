@@ -9,6 +9,7 @@ export interface AgentChatProps {
   agentAvatar?: string;
   disclaimer?: string;
   emptyText?: string;
+  placeholder?: string;
   inspector?: boolean;
   interceptor?: boolean;
   appContext?: AgentState;
@@ -22,6 +23,7 @@ export const AgentChat: React.FC<AgentChatProps> = ({
   agentAvatar,
   disclaimer,
   emptyText,
+  placeholder,
   inspector,
   interceptor,
   appContext,
@@ -44,6 +46,7 @@ export const AgentChat: React.FC<AgentChatProps> = ({
       agent-avatar={agentAvatar}
       disclaimer={disclaimer}
       empty-text={emptyText}
+      placeholder={placeholder}
       inspector={inspector ? "true" : undefined}
       interceptor={interceptor ? true : undefined}
       class={className}

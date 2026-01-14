@@ -24,6 +24,7 @@ export class AgentChat extends LitElement {
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
     @property({ type: String, attribute: 'disclaimer' }) disclaimer = 'Agent puede cometer errores. Verifica la información importante.';
     @property({ type: String, attribute: 'empty-text' }) emptyText = '¿Cómo puedo ayudarte hoy?';
+    @property({ type: String, attribute: 'placeholder' }) placeholder = 'Enviar un mensaje a Agent';
     @property({ type: Boolean, attribute: 'interceptor' }) interceptor = false;
 
     @state() private _historyOpen = false;
@@ -115,6 +116,7 @@ export class AgentChat extends LitElement {
         <agent-chat-composer 
             ?isRunning="${this._chatController.thread.isRunning}" 
             .disclaimer="${this.disclaimer}"
+            .placeholder="${this.placeholder}"
             @send="${this._handleSend}">
         </agent-chat-composer>
 

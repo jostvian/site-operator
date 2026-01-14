@@ -9,6 +9,7 @@ export class ChatComposer extends LitElement {
 
     @property({ type: Boolean }) isRunning = false;
     @property({ type: String }) disclaimer = '';
+    @property({ type: String }) placeholder = '';
 
     @state() private _value = '';
     @query('textarea') private _textarea!: HTMLTextAreaElement;
@@ -49,7 +50,7 @@ export class ChatComposer extends LitElement {
         return html`
       <div class="composer-container">
         <textarea
-            placeholder="Enviar un mensaje a Agent"
+            placeholder="${this.placeholder}"
             .value="${this._value}"
             @input="${this._handleInput}"
             @keydown="${this._handleKeyDown}"

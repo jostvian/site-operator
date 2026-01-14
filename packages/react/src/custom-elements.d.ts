@@ -11,6 +11,7 @@ declare module 'react' {
         'agent-avatar'?: string;
         'disclaimer'?: string;
         'empty-text'?: string;
+        'placeholder'?: string;
         'inspector'?: string;
         'interceptor'?: boolean;
         class?: string;
