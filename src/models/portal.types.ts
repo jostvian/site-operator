@@ -10,7 +10,7 @@ export interface NavGraph {
 }
 
 export interface NavAction {
-    name: string;
+    action: string;
     args?: any;
 }
 
