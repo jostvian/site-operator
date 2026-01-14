@@ -4,15 +4,14 @@ export const styles = css`
   :host {
     display: block;
     padding: 1rem;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    /* background: linear-gradient(to top, white, transparent); */
+    /* position: fixed; */
+    /* bottom: 0; */
+    /* left: 0; */
+    /* width: 100%; */
   }
 
   .composer-container {
-    max-width: 48rem; /* max-w-screen-md */
+    /* max-width: 48rem; / / max-w-screen-md */
     margin: 0 auto;
     display: flex;
     align-items: center;

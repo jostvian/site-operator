@@ -27,7 +27,7 @@ export const styles = css`
 
   agent-chat-thread {
       flex: 1;
-      padding-bottom: 8rem; /* Space for composer */
+      /* padding-bottom: 8rem; / / Space for composer */
   }
 
   .inspector-toggle {
