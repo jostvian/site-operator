@@ -12,9 +12,6 @@ import { ToolIcon } from '../icons';
 
 import { fetchInterceptorService } from '../services/fetch-interceptor.service';
 
-// Initialize fetch interceptor for testing purposes
-fetchInterceptorService.init();
-
 @customElement('agent-chat')
 export class AgentChat extends LitElement {
     static styles = styles;
@@ -24,6 +21,7 @@ export class AgentChat extends LitElement {
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
 
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
+    @property({ type: Boolean, attribute: 'interceptor' }) interceptor = false;
 
     @state() private _historyOpen = false;
     @state() private _inspectorOpen = false;
@@ -37,6 +35,26 @@ export class AgentChat extends LitElement {
                 inspector: this.hasAttribute('inspector') || (this as any).inspector
             });
             this._inspectorEnabled = this.hasAttribute('inspector') || (this as any).inspector;
+        }
+
+        if (changedProperties.has('interceptor')) {
+            if (this.interceptor) {
+                this.enableFetchInterceptor();
+            } else {
+                fetchInterceptorService.destroy();
+            }
+        }
+    }
+
+    /**
+     * Enables the fetch interceptor for development purposes.
+     * This will only work if the application is running in development mode.
+     */
+    public enableFetchInterceptor() {
+        if (import.meta.env.DEV) {
+            fetchInterceptorService.init();
+        } else {
+            console.warn('Fetch interceptor is only available in development mode.');
         }
     }
 

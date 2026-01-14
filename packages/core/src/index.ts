@@ -3,6 +3,7 @@ import './components/agent-chat';
 
 export * from './components/agent-chat';
 export * from './services/chat-portal.service';
+export * from './services/fetch-interceptor.service';
 export * from './models/portal.types';
 export * from './models/chat.types';
 

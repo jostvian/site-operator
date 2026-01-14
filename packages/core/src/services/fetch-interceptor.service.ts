@@ -2,16 +2,28 @@ import fetchIntercept from 'fetch-intercept';
 
 /**
  * Service to manage fetch interceptions.
- * This is primarily used for testing purposes to inject headers or log requests.
+ * This is primarily used for development and testing purposes to inject headers or log requests.
  */
 export class FetchInterceptorService {
     private unregister: (() => void) | null = null;
+    private _isEnabled = false;
+
+    /**
+     * Checks if the interceptor is currently enabled.
+     * @returns boolean
+     */
+    public get isEnabled(): boolean {
+        return this._isEnabled;
+    }
 
     /**
      * Initializes the fetch interceptor.
      * Adds a test Authorization header to all outgoing fetch requests.
+     * This method should only be called in development environments.
      */
     public init(): void {
+        // Only allow in development mode if strictly needed, 
+        // but here we just check if it's already registered.
         if (this.unregister) {
             this.unregister();
         }
@@ -22,8 +34,10 @@ export class FetchInterceptorService {
                 const headers = new Headers(config?.headers || {});
 
                 // Add test authorization header if it doesn't exist
-                if (!headers.has('Authorization')) {
-                    headers.append('Authorization', `Bearer ${import.meta.env.VITE_TEST_AUTH_TOKEN}`);
+                // Using VITE_TEST_AUTH_TOKEN from environment if available
+                const token = import.meta.env.VITE_TEST_AUTH_TOKEN;
+                if (token && !headers.has('Authorization')) {
+                    headers.append('Authorization', `Bearer ${token}`);
                 }
 
                 // Return updated config
@@ -43,6 +57,7 @@ export class FetchInterceptorService {
             }
         });
 
+        this._isEnabled = true;
         console.log('Fetch interceptor initialized with test Authorization header.');
     }
 
@@ -53,9 +68,13 @@ export class FetchInterceptorService {
         if (this.unregister) {
             this.unregister();
             this.unregister = null;
+            this._isEnabled = false;
             console.log('Fetch interceptor destroyed.');
         }
     }
 }
 
+/**
+ * Singleton instance of the FetchInterceptorService.
+ */
 export const fetchInterceptorService = new FetchInterceptorService();
