@@ -26,18 +26,58 @@
     <h1>Lit Agent Chat Demo</h1>
     <p>This demo verifies that the component behaves like a library.</p>
 
+
     <div id="chat-container"></div>
+    <div style="margin-top: 20px;">
+        <button id="test-plan">Test Execute Plan</button>
+    </div>
 
     <script type="module">
-        import { mount } from './dist/lit-agent-chat.es.js';
+        import { mount, chatPortalService } from './dist/lit-agent-chat.es.js';
 
-        // Method 1: Mount using the helper API
+        // 1. Register a Portal
+        const portalSpec = {
+            graph: {
+                nodes: {
+                    "home": { id: "home", description: "Home Page" },
+                    "settings": { id: "settings", description: "Settings Page" }
+                },
+                wsroot: "home"
+            },
+            actions: {
+                "navigate": async (args) => {
+                    console.log("Portal Action: Navigate to", args.route);
+                    return { success: true };
+                },
+                "click": async (args) => {
+                    console.log("Portal Action: Click", args.selector);
+                    return { clicked: true };
+                }
+            }
+        };
+
+        chatPortalService.registerPortal(portalSpec);
+        console.log("Portal Registered");
+
+        // 2. Mount Chat
         const container = document.getElementById('chat-container');
         mount(container, {
-            // Pass any props here if supported
+            backendUrl: 'http://localhost:8001/ag_ui'
         });
-
         console.log('Chat mounted via API');
+
+        // 3. Test Button to simulate plan execution
+        document.getElementById('test-plan').addEventListener('click', async () => {
+            console.log("Testing executePlan...");
+            const plan = {
+                steps: [
+                    { action: "navigate", args: { route: "settings" } },
+                    { action: "click", args: { selector: "#save-btn" } }
+                ]
+            };
+            const result = await chatPortalService.executePlan(plan);
+            console.log("Execution Result:", result);
+        });
     </script>
 </body>
 
