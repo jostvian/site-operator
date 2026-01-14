@@ -1,6 +1,13 @@
 {
   "name": "site-operator-monorepo",
   "private": true,
+  "description": "Monorepo for Site Operator and its framework wrappers.",
+  "author": "jostvian-agent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jostvian-agent/site-operator.git"
+  },
   "workspaces": [
     "packages/*"
   ],
