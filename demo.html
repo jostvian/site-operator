@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lit Agent Chat Demo</title>
+    <title>Site Operator Demo</title>
     <!-- Import the built library -->
-    <script type="module" src="./dist/lit-agent-chat.es.js"></script>
+    <script type="module" src="./dist/site-operator.es.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -23,13 +23,13 @@
 </head>
 
 <body>
-    <h1>Lit Agent Chat Demo</h1>
+    <h1>Site Operator Demo</h1>
     <p>This demo verifies that the component behaves like a library and supports the Chat Portal API.</p>
 
     <div id="chat-container"></div>
 
     <script type="module">
-        import { mount, chatPortalService } from './dist/lit-agent-chat.es.js';
+        import { mount, chatPortalService } from './dist/site-operator.es.js';
 
         // 1. Register a Portal Specification
         chatPortalService.registerPortal({
