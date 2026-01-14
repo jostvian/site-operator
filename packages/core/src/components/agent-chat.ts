@@ -18,6 +18,7 @@ export class AgentChat extends LitElement {
 
     private _chatController = new ChatController(this);
     @property({ type: String, attribute: 'backend-url' }) backendUrl = 'http://localhost:8001/ag_ui';
+    @property({ type: String, attribute: 'conversation-url' }) conversationUrl = 'http://localhost:8003';
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
 
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
@@ -30,9 +31,10 @@ export class AgentChat extends LitElement {
     @state() private _inspectorEnabled = false;
 
     willUpdate(changedProperties: Map<string, any>) {
-        if (changedProperties.has('backendUrl') || changedProperties.has('appName')) {
+        if (changedProperties.has('backendUrl') || changedProperties.has('appName') || changedProperties.has('conversationUrl')) {
             this._chatController.initialize({
                 backendUrl: this.backendUrl,
+                conversationUrl: this.conversationUrl,
                 appName: this.appName,
                 inspector: this.hasAttribute('inspector') || (this as any).inspector
             });

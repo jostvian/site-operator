@@ -13,6 +13,14 @@ export class ConversationService {
     }
 
     /**
+     * Inicializa la URL base del servicio.
+     * @param apiUrl URL base del API de conversaciones (ej. http://localhost:8003)
+     */
+    initialize(apiUrl: string) {
+        this.baseUrl = `${apiUrl}/api/v2/conversations`;
+    }
+
+    /**
      * Obtiene todas las conversaciones de un usuario.
      * @returns Promesa con el listado de conversaciones
      */

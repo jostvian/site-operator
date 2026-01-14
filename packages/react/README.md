@@ -24,6 +24,7 @@ function App() {
     <div className="App">
       <AgentChat
         backendUrl="http://localhost:8001/ag_ui"
+        conversationUrl="http://localhost:8003"
         appName="My React App"
         agentAvatar="/avatar.png"
         disclaimer="Agent puede cometer errores. Verifica la información importante"

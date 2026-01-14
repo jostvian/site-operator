@@ -4,6 +4,7 @@ import 'site-operator';
 
 export interface AgentChatProps {
   backendUrl?: string;
+  conversationUrl?: string;
   appName?: string;
   agentAvatar?: string;
   disclaimer?: string;
@@ -16,6 +17,7 @@ export interface AgentChatProps {
 
 export const AgentChat: React.FC<AgentChatProps> = ({
   backendUrl,
+  conversationUrl,
   appName,
   agentAvatar,
   disclaimer,
@@ -37,6 +39,7 @@ export const AgentChat: React.FC<AgentChatProps> = ({
     <agent-chat
       ref={ref}
       backend-url={backendUrl}
+      conversation-url={conversationUrl}
       app-name={appName}
       agent-avatar={agentAvatar}
       disclaimer={disclaimer}

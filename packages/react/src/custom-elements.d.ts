@@ -6,6 +6,7 @@ declare module 'react' {
     interface IntrinsicElements {
       'agent-chat': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         'backend-url'?: string;
+        'conversation-url'?: string;
         'app-name'?: string;
         'agent-avatar'?: string;
         'disclaimer'?: string;
