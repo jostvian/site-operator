@@ -1,7 +1,7 @@
-# AI Context - Lit Agent Chat
+# AI Context - Site Operator
 
 ## Project Overview
-**Name**: `lit-agent-chat`
+**Name**: `site-operator`
 **Type**: NPM Library / Web Component Widget
 **Frameworks**: Lit (Web Components), TypeScript, Vite, Wireit.
 **Purpose**: A customizable, framework-agnostic AI chat widget that acts as a "copilot" for host applications. It connects to a backend agent (via `@ag-ui/client`) and allows the agent to control the host app through the **Chat Portal API**.
@@ -48,7 +48,7 @@ The project is built as a library (`npm run build` produces `dist/`).
 - **Exports**: `AgentChat` component, `chatPortalService`, `mount()` helper.
 - **Mounting**:
   ```javascript
-  import { mount } from 'lit-agent-chat';
+  import { mount } from 'site-operator';
   mount(document.body, { backendUrl: '...', appName: '...' });
   ```
 

@@ -6,8 +6,8 @@ export default defineConfig({
     build: {
         lib: {
             entry: 'src/index.ts',
-            name: 'LitAgentChat',
-            fileName: (format) => `lit-agent-chat.${format}.js`
+            name: 'SiteOperator',
+            fileName: (format) => `site-operator.${format}.js`
         },
         rollupOptions: {
             // Externalize deps that shouldn't be bundled?

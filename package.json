@@ -1,23 +1,23 @@
 {
-  "name": "lit-agent-chat",
+  "name": "site-operator",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "wireit",
     "build": "wireit",
     "preview": "wireit"
   },
-  "main": "./dist/lit-agent-chat.umd.js",
-  "module": "./dist/lit-agent-chat.es.js",
+  "main": "./dist/site-operator.umd.js",
+  "module": "./dist/site-operator.es.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
-      "import": "./dist/lit-agent-chat.es.js",
-      "require": "./dist/lit-agent-chat.umd.js",
+      "import": "./dist/site-operator.es.js",
+      "require": "./dist/site-operator.umd.js",
       "types": "./dist/index.d.ts"
     }
   },
