@@ -8,7 +8,10 @@ declare module 'react' {
         'backend-url'?: string;
         'app-name'?: string;
         'agent-avatar'?: string;
+        'disclaimer'?: string;
+        'empty-text'?: string;
         'inspector'?: string;
+        'interceptor'?: boolean;
         class?: string;
         ref?: React.RefObject<AgentChatElement | null>;
       };

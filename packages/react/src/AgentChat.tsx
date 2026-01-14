@@ -6,7 +6,10 @@ export interface AgentChatProps {
   backendUrl?: string;
   appName?: string;
   agentAvatar?: string;
+  disclaimer?: string;
+  emptyText?: string;
   inspector?: boolean;
+  interceptor?: boolean;
   appContext?: AgentState;
   className?: string;
 }
@@ -15,7 +18,10 @@ export const AgentChat: React.FC<AgentChatProps> = ({
   backendUrl,
   appName,
   agentAvatar,
+  disclaimer,
+  emptyText,
   inspector,
+  interceptor,
   appContext,
   className
 }) => {
@@ -33,7 +39,10 @@ export const AgentChat: React.FC<AgentChatProps> = ({
       backend-url={backendUrl}
       app-name={appName}
       agent-avatar={agentAvatar}
+      disclaimer={disclaimer}
+      empty-text={emptyText}
       inspector={inspector ? "true" : undefined}
+      interceptor={interceptor ? true : undefined}
       class={className}
     />
   );

@@ -26,6 +26,8 @@ function App() {
         backendUrl="http://localhost:8001/ag_ui"
         appName="My React App"
         agentAvatar="/avatar.png"
+        disclaimer="Agent puede cometer errores. Verifica la información importante"
+        emptyText="¿Cómo puedo ayudarte hoy?"
       />
     </div>
   );

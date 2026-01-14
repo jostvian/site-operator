@@ -11,6 +11,7 @@ export class ChatThread extends LitElement {
   @property({ type: Array }) messages: Message[] = [];
   @property({ type: Boolean }) isRunning = false;
   @property({ type: String }) agentAvatar = '';
+  @property({ type: String }) emptyText = '';
 
   // listElement query removed as it was unused in logic (scrollToBottom uses querySelector directly)
 
@@ -34,7 +35,7 @@ export class ChatThread extends LitElement {
           ? html`<img src="${this.agentAvatar}" alt="Agent Avatar" class="empty-avatar-img">`
           : html`<div class="empty-avatar">SM</div>`
         }
-                <p class="empty-text">¿Cómo puedo ayudarte hoy?</p>
+                <p class="empty-text">${this.emptyText}</p>
             </div>
         `;
     }

@@ -21,6 +21,8 @@ export class AgentChat extends LitElement {
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
 
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
+    @property({ type: String, attribute: 'disclaimer' }) disclaimer = 'Agent puede cometer errores. Verifica la información importante.';
+    @property({ type: String, attribute: 'empty-text' }) emptyText = '¿Cómo puedo ayudarte hoy?';
     @property({ type: Boolean, attribute: 'interceptor' }) interceptor = false;
 
     @state() private _historyOpen = false;
@@ -105,9 +107,14 @@ export class AgentChat extends LitElement {
         <agent-chat-thread 
             .messages="${this._chatController.thread.messages}" 
             ?isRunning="${this._chatController.thread.isRunning}"
-            .agentAvatar="${this.agentAvatar}">
+            .agentAvatar="${this.agentAvatar}"
+            .emptyText="${this.emptyText}">
         </agent-chat-thread>
-        <agent-chat-composer ?isRunning="${this._chatController.thread.isRunning}" @send="${this._handleSend}"></agent-chat-composer>
+        <agent-chat-composer 
+            ?isRunning="${this._chatController.thread.isRunning}" 
+            .disclaimer="${this.disclaimer}"
+            @send="${this._handleSend}">
+        </agent-chat-composer>
 
         ${this._inspectorEnabled ? html`
           <button class="inspector-toggle" @click="${this._toggleInspector}" title="Inspector">

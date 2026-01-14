@@ -8,6 +8,7 @@ export class ChatComposer extends LitElement {
     static styles = styles;
 
     @property({ type: Boolean }) isRunning = false;
+    @property({ type: String }) disclaimer = '';
 
     @state() private _value = '';
     @query('textarea') private _textarea!: HTMLTextAreaElement;
@@ -62,7 +63,7 @@ export class ChatComposer extends LitElement {
             }
       </div>
       <p class="disclaimer">
-        Agent puede cometer errores. Verifica la información importante.
+        ${this.disclaimer}
       </p>
     `;
     }
