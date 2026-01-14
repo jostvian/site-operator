@@ -15,7 +15,7 @@ export const styles = css`
     max-width: 48rem; /* max-w-screen-md */
     margin: 0 auto;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     background-color: var(--agent-bg-zinc-100, #f4f4f5);
     border-radius: var(--agent-radius-3xl, 1.5rem);
     padding-left: 0.5rem;
