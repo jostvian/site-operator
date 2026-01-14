@@ -25,6 +25,8 @@ export class AgentChat extends LitElement {
     @property({ type: String, attribute: 'disclaimer' }) disclaimer = 'Agent puede cometer errores. Verifica la información importante.';
     @property({ type: String, attribute: 'empty-text' }) emptyText = '¿Cómo puedo ayudarte hoy?';
     @property({ type: String, attribute: 'placeholder' }) placeholder = 'Enviar un mensaje a Agent';
+    @property({ type: String, attribute: 'header-title' }) headerTitle = 'Agent';
+    @property({ type: Boolean, attribute: 'hide-header' }) hideHeader = false;
     @property({ type: Boolean, attribute: 'interceptor' }) interceptor = false;
 
     @state() private _historyOpen = false;
@@ -98,10 +100,13 @@ export class AgentChat extends LitElement {
     render() {
         return html`
       <div class="chat-layout">
-        <agent-chat-header 
-            @new-thread="${this._handleNewThread}"
-            @toggle-history="${this._toggleHistory}"
-        ></agent-chat-header>
+        ${!this.hideHeader ? html`
+            <agent-chat-header 
+                .title="${this.headerTitle}"
+                @new-thread="${this._handleNewThread}"
+                @toggle-history="${this._toggleHistory}"
+            ></agent-chat-header>
+        ` : ''}
         <agent-chat-history-list 
             .conversations="${this._chatController.conversations}" 
             ?open="${this._historyOpen}"

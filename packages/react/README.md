@@ -27,9 +27,17 @@ function App() {
         conversationUrl="http://localhost:8003"
         appName="My React App"
         agentAvatar="/avatar.png"
-        disclaimer="Agent puede cometer errores. Verifica la información importante"
-        emptyText="¿Cómo puedo ayudarte hoy?"
-        placeholder="Enviar un mensaje a Agent"
+        header={{
+          title: "Mi Asistente",
+          hide: false
+        }}
+        composer={{
+          disclaimer: "Agent puede cometer errores. Verifica la información importante",
+          placeholder: "Enviar un mensaje a Agent"
+        }}
+        thread={{
+          emptyText: "¿Cómo puedo ayudarte hoy?"
+        }}
       />
     </div>
   );

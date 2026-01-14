@@ -12,6 +12,8 @@ declare module 'react' {
         'disclaimer'?: string;
         'empty-text'?: string;
         'placeholder'?: string;
+        'header-title'?: string;
+        'hide-header'?: boolean;
         'inspector'?: string;
         'interceptor'?: boolean;
         class?: string;
