@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lit Agent Chat Demo</title>
+    <!-- Import the built library -->
+    <script type="module" src="./dist/lit-agent-chat.es.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        #chat-container {
+            width: 400px;
+            height: 600px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Lit Agent Chat Demo</h1>
+    <p>This demo verifies that the component behaves like a library.</p>
+
+    <div id="chat-container"></div>
+
+    <script type="module">
+        import { mount } from './dist/lit-agent-chat.es.js';
+
+        // Method 1: Mount using the helper API
+        const container = document.getElementById('chat-container');
+        mount(container, {
+            // Pass any props here if supported
+        });
+
+        console.log('Chat mounted via API');
+    </script>
+</body>
+
+</html>
