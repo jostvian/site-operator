@@ -1,68 +1,11 @@
 {
-  "name": "site-operator",
+  "name": "site-operator-monorepo",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "wireit",
-    "build": "wireit",
-    "preview": "wireit"
-  },
-  "main": "./dist/site-operator.umd.js",
-  "module": "./dist/site-operator.es.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
+  "workspaces": [
+    "packages/*"
   ],
-  "exports": {
-    ".": {
-      "import": "./dist/site-operator.es.js",
-      "require": "./dist/site-operator.umd.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "wireit": {
-    "dev": {
-      "command": "vite",
-      "service": true
-    },
-    "check-types": {
-      "command": "tsc --noEmit",
-      "files": [
-        "src/**/*.ts",
-        "tsconfig.json"
-      ],
-      "output": []
-    },
-    "build": {
-      "command": "vite build",
-      "dependencies": [
-        "check-types"
-      ],
-      "files": [
-        "src/**/*",
-        "index.html",
-        "vite.config.ts"
-      ],
-      "output": [
-        "dist/**"
-      ]
-    }
-  },
-  "dependencies": {
-    "@a2ui/lit": "^0.8.1",
-    "@ag-ui/client": "^0.0.42",
-    "fetch-intercept": "^2.4.0",
-    "lit": "^3.3.1",
-    "whatwg-fetch": "^3.6.20"
-  },
-  "devDependencies": {
-    "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.2.5",
-    "vite-plugin-dts": "^4.5.4",
-    "wireit": "^0.14.12"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.2.5"
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspace=site-operator"
   }
 }
