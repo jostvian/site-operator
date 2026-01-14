@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "React wrapper for site-operator, providing AgentChat component and hooks.",
   "type": "module",
-  "author": "jostvian-agent",
+  "author": "jostvian",
   "license": "MIT",
   "repository": {
     "type": "git",
