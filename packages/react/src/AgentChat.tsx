@@ -58,15 +58,15 @@ export const AgentChat: React.FC<AgentChatProps> = ({
   return (
     <agent-chat
       ref={ref}
-      backend-url={backendUrl}
-      conversation-url={conversationUrl}
-      app-name={appName}
-      agent-avatar={agentAvatar}
+      backendUrl={backendUrl}
+      conversationUrl={conversationUrl}
+      appName={appName}
+      agentAvatar={agentAvatar}
       disclaimer={composer?.disclaimer}
       placeholder={composer?.placeholder}
-      empty-text={thread?.emptyText}
-      header-title={header?.title}
-      hide-header={header?.hide}
+      emptyText={thread?.emptyText}
+      headerTitle={header?.title}
+      hideHeader={header?.hide}
       inspector={inspector ? "true" : undefined}
       interceptor={interceptor ? true : undefined}
       class={className}

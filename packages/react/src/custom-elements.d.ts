@@ -5,17 +5,17 @@ declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
       'agent-chat': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        'backend-url'?: string;
-        'conversation-url'?: string;
-        'app-name'?: string;
-        'agent-avatar'?: string;
-        'disclaimer'?: string;
-        'empty-text'?: string;
-        'placeholder'?: string;
-        'header-title'?: string;
-        'hide-header'?: boolean;
-        'inspector'?: string;
-        'interceptor'?: boolean;
+        backendUrl?: string;
+        conversationUrl?: string;
+        appName?: string;
+        agentAvatar?: string;
+        disclaimer?: string;
+        emptyText?: string;
+        placeholder?: string;
+        headerTitle?: string;
+        hideHeader?: boolean;
+        inspector?: string;
+        interceptor?: boolean;
         class?: string;
         ref?: React.RefObject<AgentChatElement | null>;
       };
