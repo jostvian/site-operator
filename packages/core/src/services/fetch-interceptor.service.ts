@@ -3,7 +3,7 @@
  * This is primarily used for development and testing purposes to inject headers or log requests.
  */
 export class FetchInterceptorService {
-    private originalFetch = window.fetch;
+    private originalFetch = window.fetch.bind(window);
     private _isEnabled = true;
 
     /**
