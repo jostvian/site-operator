@@ -54,5 +54,7 @@ export const styles = css`
   .empty-text {
     font-size: 1.25rem;
     line-height: 1.75rem;
+    text-align: center;
+    padding: 0 1rem;
   }
 `;
