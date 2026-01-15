@@ -17,13 +17,12 @@ export class AgentChat extends LitElement {
     static styles = styles;
 
     private _chatController = new ChatController(this);
-    @property({ type: String, attribute: 'backend-url' }) backendUrl = 'http://localhost:8001/ag_ui';
-    @property({ type: String, attribute: 'conversation-url' }) conversationUrl = 'http://localhost:8003';
+    @property({ type: String, attribute: 'backend-url' }) backendUrl = '/ag_ui';
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
 
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
     @property({ type: String, attribute: 'disclaimer' }) disclaimer = 'Agent puede cometer errores. Verifica la información importante.';
-    @property({ type: String, attribute: 'empty-text' }) emptyText = '¿Cómo puedo ayudarte hoy?';
+    @property({ type: String, attribute: 'empty-text' }) emptyText = '¡Hola! Soy SAMI, tu asistente virtual de Skandia. ¿En qué puedo ayudarte hoy?';
     @property({ type: String, attribute: 'placeholder' }) placeholder = 'Enviar un mensaje a Agent';
     @property({ type: String, attribute: 'header-title' }) headerTitle = 'Agent';
     @property({ type: Boolean, attribute: 'hide-header' }) hideHeader = false;
@@ -37,7 +36,6 @@ export class AgentChat extends LitElement {
         if (changedProperties.has('backendUrl') || changedProperties.has('appName') || changedProperties.has('conversationUrl')) {
             this._chatController.initialize({
                 backendUrl: this.backendUrl,
-                conversationUrl: this.conversationUrl,
                 appName: this.appName,
                 inspector: this.hasAttribute('inspector') || (this as any).inspector
             });

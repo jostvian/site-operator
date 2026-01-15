@@ -4,6 +4,12 @@ import dts from 'vite-plugin-dts'
 // https://vitejs.dev/config/
 export default defineConfig({
     server: {
+        proxy: {
+            '/ag_ui': {
+                target: 'http://localhost:8001',
+                changeOrigin: true,
+            },
+        },
         sourcemapIgnoreList: (path) => path.includes('node_modules')
     },
     build: {
