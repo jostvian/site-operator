@@ -10,7 +10,7 @@ export default defineConfig({
                 changeOrigin: true,
             },
         },
-        sourcemapIgnoreList: (path) => path.includes('node_modules')
+        // sourcemapIgnoreList: (path) => path.includes('node_modules')
     },
     build: {
         lib: {

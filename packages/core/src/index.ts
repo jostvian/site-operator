@@ -1,4 +1,3 @@
-(window as any).litDisableDevMode = true;
 import './components/agent-chat';
 
 

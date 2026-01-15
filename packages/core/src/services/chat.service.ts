@@ -3,7 +3,6 @@ import type { ChatThread, Message, AgentState, ConversationSummary } from "../mo
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
-import { conversationService } from "./conversation.service";
 
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
@@ -26,14 +25,11 @@ export class ChatService extends EventTarget {
      * Inicializa el servicio de chat con las URLs necesarias y el nombre de la aplicación.
      * @param config Configuración de inicialización.
      */
-    initialize(config: { backendUrl: string, appName: string, conversationUrl?: string, inspector?: boolean }) {
+    initialize(config: { backendUrl: string, appName: string, inspector?: boolean }) {
         this.agent = new HttpAgent({
             url: config.backendUrl,
         });
 
-        if (config.conversationUrl) {
-            conversationService.initialize(config.conversationUrl);
-        }
 
         this._appContext = {
             appName: config.appName,
@@ -69,18 +65,6 @@ export class ChatService extends EventTarget {
             return;
         }
 
-        // Create conversation if it doesn't exist
-        if (!this._thread.id) {
-            try {
-                const newConversation = await conversationService.createConversation({ title: content.slice(0, 30) + (content.length > 30 ? "..." : "") });
-                this._thread.id = newConversation.id;
-                this.agent.threadId = this._thread.id;
-            } catch (error) {
-                console.error("Failed to create conversation during sendMessage", error);
-                return; // Stop if we can't create a conversation
-            }
-        }
-
         // Optimistic update
         const userMsg: Message = {
             id: generateId("message"),
@@ -94,9 +78,6 @@ export class ChatService extends EventTarget {
         this.notify();
 
         try {
-            // Configure agent (redundant but safe)
-            this.agent.threadId = this._thread.id;
-
 
             // Add only the new message
             this.agent.addMessage({
@@ -200,11 +181,11 @@ export class ChatService extends EventTarget {
      */
     async refreshConversations() {
         try {
-            const conversations = await conversationService.getConversations();
-            this._conversations = conversations.map(c => ({
-                id: c.id,
-                title: c.title
-            }));
+            // const conversations = await conversationService.getConversations();
+            // this._conversations = conversations.map(c => ({
+            //     id: c.id,
+            //     title: c.title
+            // }));
             this.notify();
         } catch (error) {
             console.error("Failed to refresh conversations", error);
