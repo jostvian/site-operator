@@ -10,9 +10,10 @@ export default defineConfig({
                 changeOrigin: true,
             },
         },
-        // sourcemapIgnoreList: (path) => path.includes('node_modules')
+        sourcemapIgnoreList: (path) => path.includes('node_modules')
     },
     build: {
+        sourcemap: true,
         lib: {
             entry: 'src/index.ts',
             name: 'SiteOperator',
