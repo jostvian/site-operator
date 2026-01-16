@@ -5,7 +5,9 @@ import type {
     TextMessageContentEvent,
     MessagesSnapshotEvent,
     AgentSubscriberParams,
-    ToolCallEndEvent
+    ToolCallEndEvent,
+    RunErrorEvent,
+    BaseEvent
 } from "@ag-ui/client";
 import { ChatService } from "./chat.service";
 import { inspectorService } from "./inspector.service";
@@ -23,6 +25,12 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onRunStartedEvent', params.event);
         // Show thinking animation
         this.service.addPlaceholderMessage();
+    }
+
+    onRunErrorEvent(params: { event: RunErrorEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onRunErrorEvent', params.event);
+        // We could also notify the user in the UI, but for now we logs it to inspector
+        console.error('ChatSubscriber: Run Error', params.event);
     }
 
     onTextMessageStartEvent(params: { event: TextMessageStartEvent } & AgentSubscriberParams) {
@@ -110,5 +118,18 @@ export class ChatSubscriber implements AgentSubscriber {
             console.log('ChatSubscriber: Received executePlan client tool call', params.args);
             await chatPortalService.executePlan(params.args as NavPlan);
         }
+    }
+
+    onEvent(params: { event: BaseEvent } & AgentSubscriberParams) {
+        // Log all recognized events to inspector if they are not specifically handled (or even if they are)
+        // This ensures the stream tab is always populated with what's happening
+        if (!['RunStarted', 'RunFinished', 'RunError', 'StepStarted', 'StepFinished', 'TextMessageStart', 'TextMessageContent', 'TextMessageEnd', 'ToolCallStart', 'ToolCallArgs', 'ToolCallEnd', 'ToolCallResult', 'StateSnapshot', 'StateDelta', 'MessagesSnapshot', 'ActivitySnapshot', 'ActivityDelta'].includes(params.event.type)) {
+            inspectorService.addEvent(`onEvent:${params.event.type}`, params.event);
+        }
+    }
+
+    onRawEvent(params: { event: any } & AgentSubscriberParams) {
+        // Log raw data from the stream
+        inspectorService.addEvent('onRawEvent', params.event);
     }
 }

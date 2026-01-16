@@ -4,7 +4,7 @@
  */
 export class FetchInterceptorService {
     private originalFetch = window.fetch.bind(window);
-    private _isEnabled = true;
+    private _isEnabled = false;
 
     /**
      * Checks if the interceptor is currently enabled.
