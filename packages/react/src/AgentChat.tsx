@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { AgentChat as AgentChatElement, type AgentState } from 'site-operator';
+import { AgentChat as AgentChatElement, type AgentState, type AppState, type AppContext } from 'site-operator';
 import 'site-operator';
+
 
 export interface ComposerProps {
   disclaimer?: string;
@@ -17,8 +18,10 @@ export interface HeaderProps {
 }
 
 export interface ContextProps {
-  appContext?: AgentState;
+  appContext?: AppContext | AgentState;
+  appState?: AppState;
 }
+
 
 export interface AgentChatProps {
   backendUrl?: string;
@@ -54,6 +57,13 @@ export const AgentChat: React.FC<AgentChatProps> = ({
       ref.current.setAppContext(context.appContext);
     }
   }, [context?.appContext]);
+
+  useEffect(() => {
+    if (ref.current && context?.appState) {
+      ref.current.setAppState(context.appState);
+    }
+  }, [context?.appState]);
+
 
   return (
     <agent-chat
