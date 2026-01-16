@@ -123,7 +123,7 @@ export class ChatSubscriber implements AgentSubscriber {
     onEvent(params: { event: BaseEvent } & AgentSubscriberParams) {
         // Log all recognized events to inspector if they are not specifically handled (or even if they are)
         // This ensures the stream tab is always populated with what's happening
-        if (!['RunStarted', 'RunFinished', 'RunError', 'StepStarted', 'StepFinished', 'TextMessageStart', 'TextMessageContent', 'TextMessageEnd', 'ToolCallStart', 'ToolCallArgs', 'ToolCallEnd', 'ToolCallResult', 'StateSnapshot', 'StateDelta', 'MessagesSnapshot', 'ActivitySnapshot', 'ActivityDelta'].includes(params.event.type)) {
+        if (!['RUN_STARTED', 'RUN_FINISHED', 'RUN_ERROR', 'STEP_STARTED', 'STEP_FINISHED', 'TEXT_MESSAGE_START', 'TEXT_MESSAGE_CONTENT', 'TEXT_MESSAGE_END', 'TOOL_CALL_START', 'TOOL_CALL_ARGS', 'TOOL_CALL_END', 'TOOL_CALL_RESULT', 'STATE_SNAPSHOT', 'STATE_DELTA', 'MESSAGES_SNAPSHOT', 'ACTIVITY_SNAPSHOT', 'ACTIVITY_DELTA'].includes(params.event.type)) {
             inspectorService.addEvent(`onEvent:${params.event.type}`, params.event);
         }
     }
