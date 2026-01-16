@@ -1,11 +1,23 @@
 import type {
     AgentSubscriber,
     RunStartedEvent,
+    RunFinishedEvent,
+    StepStartedEvent,
+    StepFinishedEvent,
     TextMessageStartEvent,
     TextMessageContentEvent,
+    TextMessageEndEvent,
     MessagesSnapshotEvent,
     AgentSubscriberParams,
+    ToolCallStartEvent,
+    ToolCallArgsEvent,
     ToolCallEndEvent,
+    ToolCallResultEvent,
+    StateSnapshotEvent,
+    StateDeltaEvent,
+    ActivitySnapshotEvent,
+    ActivityDeltaEvent,
+    CustomEvent as AgCustomEvent,
     RunErrorEvent,
     BaseEvent
 } from "@ag-ui/client";
@@ -20,6 +32,10 @@ export class ChatSubscriber implements AgentSubscriber {
         this.service = service;
     }
 
+    onRunFinishedEvent(params: { event: RunFinishedEvent, result?: any } & AgentSubscriberParams) {
+        inspectorService.addEvent('onRunFinishedEvent', params.event);
+    }
+
     onRunStartedEvent(params: { event: RunStartedEvent } & AgentSubscriberParams) {
         inspectorService.addEvent('onRunStartedEvent', params.event);
         // Show thinking animation
@@ -30,6 +46,14 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onRunErrorEvent', params.event);
         // We could also notify the user in the UI, but for now we logs it to inspector
         console.error('ChatSubscriber: Run Error', params.event);
+    }
+
+    onStepStartedEvent(params: { event: StepStartedEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onStepStartedEvent', params.event);
+    }
+
+    onStepFinishedEvent(params: { event: StepFinishedEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onStepFinishedEvent', params.event);
     }
 
     onTextMessageStartEvent(params: { event: TextMessageStartEvent } & AgentSubscriberParams) {
@@ -45,6 +69,10 @@ export class ChatSubscriber implements AgentSubscriber {
         // @ts-ignore - The type definition might be slightly off in local vs package, ensuring we use delta
         const content = (params.event as any).delta || (params.event as any).content || "";
         this.service.appendMessageContent(params.event.messageId, content);
+    }
+
+    onTextMessageEndEvent(params: { event: TextMessageEndEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onTextMessageEndEvent', params.event);
     }
 
     onMessagesSnapshotEvent(params: { event: MessagesSnapshotEvent } & AgentSubscriberParams) {
@@ -72,7 +100,14 @@ export class ChatSubscriber implements AgentSubscriber {
             };
         });
         this.service.setMessages(messages);
-        this.service.setMessages(messages);
+    }
+
+    onToolCallStartEvent(params: { event: ToolCallStartEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onToolCallStartEvent', params.event);
+    }
+
+    onToolCallArgsEvent(params: { event: ToolCallArgsEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onToolCallArgsEvent', params.event);
     }
 
     async onToolCallEndEvent(params: {
@@ -84,31 +119,33 @@ export class ChatSubscriber implements AgentSubscriber {
 
         if (params.toolCallName === 'executePlan') {
             console.log('ChatSubscriber: Received executePlan tool call', params.toolCallArgs);
-            // Assuming args match NavPlan structure or are equal to it
-            // implementation details: args might be { plan: ... } or just the plan properties
-            // Based on user snippet `executePlan(plan: NavPlan)`, the agent likely sends the plan object.
-            // If the tool definition takes a single argument 'plan', then args.plan is what we want.
-            // If the tool definition flattens it, args *is* the plan.
-            // Let's assume args *is* the plan or contains it.
-            // Safest bet: pass args as NavPlan
-
             const result = await chatPortalService.executePlan(params.toolCallArgs);
-
-            // We might want to send the result back to the agent?
-            // The subscriber returns MaybePromise<AgentStateMutation | void>.
-            // It doesn't seem to support returning a tool result directly to the agent runtime via this return.
-            // Usually the runtime handles tool execution. 
-            // If this is a CLIENT SIDE tool, we are responsible for executing it.
-            // But how does the result get back to the LLM? 
-            // `onToolCallResultEvent` is when a result is available.
-
-            // If the backend agent is "waiting" for this tool, it expects a submission.
-            // Since this is a custom client implementation, maybe we need to send a new message with the tool result?
-            // Or maybe the `ag-ui` client handles this automatically if we use a specific middleware?
-            // For now, I will just execute it. The user said "llamado por tu runtime cuando llega client_tool_call".
-
             console.log('ChatSubscriber: executePlan result', result);
         }
+    }
+
+    onToolCallResultEvent(params: { event: ToolCallResultEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onToolCallResultEvent', params.event);
+    }
+
+    onStateSnapshotEvent(params: { event: StateSnapshotEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onStateSnapshotEvent', params.event);
+    }
+
+    onStateDeltaEvent(params: { event: StateDeltaEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onStateDeltaEvent', params.event);
+    }
+
+    onActivitySnapshotEvent(params: { event: ActivitySnapshotEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onActivitySnapshotEvent', params.event);
+    }
+
+    onActivityDeltaEvent(params: { event: ActivityDeltaEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onActivityDeltaEvent', params.event);
+    }
+
+    onCustomEvent(params: { event: AgCustomEvent } & AgentSubscriberParams) {
+        inspectorService.addEvent('onCustomEvent', params.event);
     }
 
     async onClientToolCall(params: { event: any, toolName: string, args: any } & AgentSubscriberParams) {
@@ -121,11 +158,8 @@ export class ChatSubscriber implements AgentSubscriber {
 
 
     onEvent(params: { event: BaseEvent } & AgentSubscriberParams) {
-        // Log all recognized events to inspector if they are not specifically handled (or even if they are)
-        // This ensures the stream tab is always populated with what's happening
-        if (!['RUN_STARTED', 'RUN_FINISHED', 'RUN_ERROR', 'STEP_STARTED', 'STEP_FINISHED', 'TEXT_MESSAGE_START', 'TEXT_MESSAGE_CONTENT', 'TEXT_MESSAGE_END', 'TOOL_CALL_START', 'TOOL_CALL_ARGS', 'TOOL_CALL_END', 'TOOL_CALL_RESULT', 'STATE_SNAPSHOT', 'STATE_DELTA', 'MESSAGES_SNAPSHOT', 'ACTIVITY_SNAPSHOT', 'ACTIVITY_DELTA'].includes(params.event.type)) {
-            inspectorService.addEvent(`onEvent:${params.event.type}`, params.event);
-        }
+        // Log all recognized events to inspector
+        inspectorService.addEvent(`onEvent:${params.event.type}`, params.event);
     }
 
     onRawEvent(params: { event: any } & AgentSubscriberParams) {
