@@ -6,7 +6,9 @@ export const styles = css`
     bottom: 60px;
     left: 20px;
     width: 400px;
-    max-height: 500px;
+    height: 500px;
+    min-width: 300px;
+    min-height: 200px;
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -27,6 +29,7 @@ export const styles = css`
     align-items: center;
     cursor: move;
     user-select: none;
+    flex-shrink: 0;
   }
 
   .header h3 {
@@ -58,6 +61,7 @@ export const styles = css`
     background: #f3f4f6;
     padding: 4px;
     gap: 4px;
+    flex-shrink: 0;
   }
 
   .tab {
@@ -130,4 +134,50 @@ export const styles = css`
   .event-content {
     margin-top: 4px;
   }
+
+  details {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  summary {
+    padding: 6px 10px;
+    cursor: pointer;
+    background: #f3f4f6;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #4b5563;
+    user-select: none;
+  }
+
+  summary:hover {
+    background: #e5e7eb;
+  }
+
+  details[open] summary {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0;
+  }
+
+  details pre {
+    border: none;
+    border-radius: 0;
+    padding: 10px;
+  }
+
+  .resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    z-index: 1001;
+    background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px);
+    background-size: 4px 4px;
+    background-position: center;
+  }
+
 `;

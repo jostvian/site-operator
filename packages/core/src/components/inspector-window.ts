@@ -13,6 +13,7 @@ export class InspectorWindow extends LitElement {
   @state() private _stream: any[] = [];
 
   private _isDragging = false;
+  private _isResizing = false;
   private _currentX: number = 0;
   private _currentY: number = 0;
   private _initialX: number = 0;
@@ -20,16 +21,39 @@ export class InspectorWindow extends LitElement {
   private _xOffset: number = 0;
   private _yOffset: number = 0;
 
+  private _initialWidth: number = 0;
+  private _initialHeight: number = 0;
+
   connectedCallback() {
     super.connectedCallback();
     inspectorService.addEventListener('inspector-change', this._onInspectorChange);
+    window.addEventListener('mousemove', this._onMouseMove);
+    window.addEventListener('mouseup', this._onMouseUp);
     this._updateData();
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     inspectorService.removeEventListener('inspector-change', this._onInspectorChange);
+    window.removeEventListener('mousemove', this._onMouseMove);
+    window.removeEventListener('mouseup', this._onMouseUp);
   }
+
+  private _onMouseMove = (e: MouseEvent) => {
+    if (this._isDragging) {
+      this._drag(e);
+    } else if (this._isResizing) {
+      this._resize(e);
+    }
+  };
+
+  private _onMouseUp = () => {
+    if (this._isDragging) {
+      this._dragEnd();
+    } else if (this._isResizing) {
+      this._resizeEnd();
+    }
+  };
 
   private _onInspectorChange = () => {
     this._updateData();
@@ -47,6 +71,8 @@ export class InspectorWindow extends LitElement {
   }
 
   private _dragStart(e: MouseEvent | TouchEvent) {
+    if (e.target && (e.target as HTMLElement).closest('.close-button')) return;
+
     if (e.type === "touchstart") {
       this._initialX = (e as TouchEvent).touches[0].clientX - this._xOffset;
       this._initialY = (e as TouchEvent).touches[0].clientY - this._yOffset;
@@ -55,14 +81,12 @@ export class InspectorWindow extends LitElement {
       this._initialY = (e as MouseEvent).clientY - this._yOffset;
     }
 
-    if ((e.target as HTMLElement).closest('.close-button')) return;
-
     this._isDragging = true;
   }
 
   private _drag(e: MouseEvent | TouchEvent) {
     if (this._isDragging) {
-      e.preventDefault();
+      if (e.type !== "mousemove") e.preventDefault();
 
       if (e.type === "touchmove") {
         this._currentX = (e as TouchEvent).touches[0].clientX - this._initialX;
@@ -85,6 +109,29 @@ export class InspectorWindow extends LitElement {
     this._isDragging = false;
   }
 
+  private _resizeStart(e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    this._isResizing = true;
+    this._initialX = e.clientX;
+    this._initialY = e.clientY;
+    this._initialWidth = this.getBoundingClientRect().width;
+    this._initialHeight = this.getBoundingClientRect().height;
+  }
+
+  private _resize(e: MouseEvent) {
+    if (this._isResizing) {
+      const deltaX = e.clientX - this._initialX;
+      const deltaY = e.clientY - this._initialY;
+      this.style.width = `${this._initialWidth + deltaX}px`;
+      this.style.height = `${this._initialHeight + deltaY}px`;
+    }
+  }
+
+  private _resizeEnd() {
+    this._isResizing = false;
+  }
+
   private _setTranslate(xPos: number, yPos: number) {
     this.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
   }
@@ -94,11 +141,8 @@ export class InspectorWindow extends LitElement {
       <div class="header"
         @mousedown="${this._dragStart}"
         @touchstart="${this._dragStart}"
-        @mousemove="${this._drag}"
         @touchmove="${this._drag}"
-        @mouseup="${this._dragEnd}"
         @touchend="${this._dragEnd}"
-        @mouseleave="${this._dragEnd}"
       >
         <h3>Inspector</h3>
         <button class="close-button" @click="${this._handleClose}">
@@ -113,6 +157,7 @@ export class InspectorWindow extends LitElement {
       <div class="content">
         ${this._renderContent()}
       </div>
+      <div class="resize-handle" @mousedown="${this._resizeStart}"></div>
     `;
   }
 
@@ -132,7 +177,10 @@ export class InspectorWindow extends LitElement {
                   <span class="event-time">${item.time}</span>
                 </div>
                 <div class="event-content">
-                  <pre>${JSON.stringify(item.content, null, 2)}</pre>
+                  <details>
+                    <summary>JSON</summary>
+                    <pre>${JSON.stringify(item.content, null, 2)}</pre>
+                  </details>
                 </div>
               </div>
             `)}
@@ -141,6 +189,7 @@ export class InspectorWindow extends LitElement {
         `;
     }
   }
+
 }
 
 declare global {
