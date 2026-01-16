@@ -7,12 +7,12 @@ export interface AppContext {
         locale?: string;
     };
 
-    user: {
-        id: string;
+    user?: {
+        id?: string;
         displayName?: string;
     };
 
-    nav: {
+    nav?: {
         routes: Array<{
             id: string;                 // "clients.list"
             path: string;               // "/clients"

@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { styles } from './chat-message.styles';
-import type { Message } from '../models/chat.types';
+import type { UIMessage } from '../models/chat.types';
 import './ui/icon-button';
 import { CopyIcon, ReloadIcon } from '../icons';
 
@@ -9,7 +9,7 @@ import { CopyIcon, ReloadIcon } from '../icons';
 export class ChatMessage extends LitElement {
   static styles = styles;
 
-  @property({ type: Object }) message!: Message;
+  @property({ type: Object }) message!: UIMessage;
   @property({ type: Boolean }) isLast = false;
   @property({ type: Boolean }) isStreaming = false;
   @property({ type: String }) agentAvatar = '';
@@ -22,7 +22,10 @@ export class ChatMessage extends LitElement {
   }
 
   private _handleCopy() {
-    navigator.clipboard.writeText(this.message.content);
+    const textToCopy = typeof this.message.content === 'string'
+      ? this.message.content
+      : JSON.stringify(this.message.content || '');
+    navigator.clipboard.writeText(textToCopy);
     // TODO: Show copied feedback
   }
 

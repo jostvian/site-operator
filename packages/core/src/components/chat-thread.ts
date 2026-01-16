@@ -1,14 +1,14 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { styles } from './chat-thread.styles';
-import type { Message } from '../models/chat.types';
+import type { UIMessage } from '../models/chat.types';
 import './chat-message';
 
 @customElement('agent-chat-thread')
 export class ChatThread extends LitElement {
   static styles = styles;
 
-  @property({ type: Array }) messages: Message[] = [];
+  @property({ type: Array }) messages: UIMessage[] = [];
   @property({ type: Boolean }) isRunning = false;
   @property({ type: String }) agentAvatar = '';
   @property({ type: String }) emptyText = '';

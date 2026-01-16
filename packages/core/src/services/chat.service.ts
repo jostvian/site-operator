@@ -1,5 +1,5 @@
-import { HttpAgent } from "@ag-ui/client";
-import type { ChatThread, Message, AgentState, ConversationSummary, AppState } from "../models/chat.types";
+import { HttpAgent, type Message } from "@ag-ui/client";
+import type { ConversationSummary, AppState, AgentState, ChatThread, UIMessage } from "../models/chat.types";
 import type { AppContext } from "../models/portal.types";
 
 
@@ -14,6 +14,7 @@ export class ChatService extends EventTarget {
         id: "",
         messages: [],
         isRunning: false,
+        title: "",
     };
     private _conversations: ConversationSummary[] = [];
     private _appContext: AppContext | AgentState | null = null;
@@ -42,12 +43,15 @@ export class ChatService extends EventTarget {
 
 
         this._appContext = {
-            appName: config.appName,
-            currentPage: 'home',
-            inspector: config.inspector
+            v: "1.1",
+            site: {
+                name: config.appName,
+                locale: window.navigator.language || window.navigator.languages[0] || "en",
+            },
+
         };
         inspectorService.setContext(this._appContext);
-        inspectorService.setMessages(this._thread.messages);
+        inspectorService.setMessages(this.agent?.messages);
     }
 
     get thread() {
@@ -63,7 +67,7 @@ export class ChatService extends EventTarget {
      * Este contexto se envía en cada mensaje.
      * @param context El contexto de la aplicación (AgentState o AppContext)
      */
-    setAppContext(context: AgentState | AppContext) {
+    setAppContext(context: AppContext | AgentState) {
         this._appContext = context;
         inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
@@ -108,32 +112,49 @@ export class ChatService extends EventTarget {
     }
 
 
-    async sendMessage(content: string) {
+    async sendMessage(content: string, role: "developer" | "user" | "assistant" | "system" | "tool" | "activity" = "user") {
         if (!this.agent) {
             console.error("ChatService not initialized. Call initialize() first.");
             return;
         }
 
         // Optimistic update
-        const userMsg: Message = {
-            id: generateId("message"),
-            role: "user",
-            content,
-            createdAt: Date.now(),
-        };
+        const id = generateId("message");
+        const createdAt = Date.now();
+        let userMsg: UIMessage;
+
+        switch (role) {
+            case "activity":
+                userMsg = { id, role: "activity", activityType: "message", content: { text: content }, createdAt };
+                break;
+            case "tool":
+                userMsg = { id, role: "tool", content, toolCallId: generateId("toolCall"), createdAt };
+                break;
+            case "user":
+                userMsg = { id, role: "user", content, createdAt };
+                break;
+            case "assistant":
+                userMsg = { id, role: "assistant", content, createdAt };
+                break;
+            case "system":
+                userMsg = { id, role: "system", content, createdAt };
+                break;
+            case "developer":
+                userMsg = { id, role: "developer", content, createdAt };
+                break;
+        }
 
         this._thread.messages = [...this._thread.messages, userMsg];
         this._thread.isRunning = true;
+
+
+
         this.notify();
 
         try {
 
             // Add only the new message
-            this.agent.addMessage({
-                id: userMsg.id,
-                role: userMsg.role,
-                content: userMsg.content
-            });
+            this.agent.addMessage(userMsg as Message);
 
             // Run the agent with subscriber
             const contextItems = [
@@ -182,7 +203,7 @@ export class ChatService extends EventTarget {
     }
 
     addPlaceholderMessage() {
-        const placeholder: Message = {
+        const placeholder: UIMessage = {
             id: "thinking-placeholder",
             role: "assistant",
             content: "",
@@ -209,11 +230,11 @@ export class ChatService extends EventTarget {
 
     appendMessageContent(id: string, content: string) {
         this._thread.messages = this._thread.messages.map(msg => {
-            if (msg.id === id) {
+            if (msg.id === id && typeof msg.content === 'string') {
                 return {
                     ...msg,
-                    content: msg.content + content
-                };
+                    content: (msg.content || '') + content
+                } as UIMessage;
             }
             return msg;
         });
@@ -223,7 +244,7 @@ export class ChatService extends EventTarget {
     setMessages(messages: Message[]) {
         // Map external messages to our Message type if needed, or assume compatibility
         // Assuming strict compatibility for now
-        this._thread.messages = messages as Message[];
+        this._thread.messages = messages as UIMessage[];
         this.notify();
     }
 

@@ -1,20 +1,18 @@
-export type Role = "user" | "assistant";
+import type { Message } from "@ag-ui/client";
 
-export interface Message {
-    id: string;
-    role: Role;
-    content: string;
-    createdAt: number;
+export type { Message };
+
+export type UIMessage = Message & {
     isThinking?: boolean;
-}
-
+    createdAt?: number;
+};
 
 export interface ChatThread {
     id: string;
-    messages: Message[];
+    messages: UIMessage[];
     isRunning: boolean;
+    title?: string;
 }
-
 export interface ConversationSummary {
     id: string;
     title: string;
