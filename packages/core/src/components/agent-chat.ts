@@ -5,7 +5,9 @@ import './chat-header';
 import './chat-thread';
 import './chat-composer';
 import type { AgentState } from '../models/chat.types';
+import type { AppContext } from '../models/portal.types';
 import './chat-history-list';
+
 import './inspector-window';
 import { ChatController } from '../hooks/chat.controller';
 import { ToolIcon } from '../icons';
@@ -73,11 +75,12 @@ export class AgentChat extends LitElement {
 
     /**
      * API Pública para establecer el contexto de la aplicación.
-     * @param appContext Contexto de la aplicación (AgentState)
+     * @param appContext Contexto de la aplicación (AgentState o AppContext)
      */
-    public setAppContext(appContext: AgentState) {
+    public setAppContext(appContext: AgentState | AppContext) {
         this._chatController.setAppContext(appContext);
     }
+
 
     private _toggleHistory() {
         this._historyOpen = !this._historyOpen;

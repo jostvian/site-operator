@@ -1,33 +1,66 @@
-export interface NavNode {
-    id: string;
-    description: string;
-    // Potentially other metadata for the agent to understand the screen/state
-}
+export interface AppContext {
+    v: "1.1";
 
-export interface NavGraph {
-    nodes: NavNode[];
-    edges: { from: string; to: string; label?: string }[];
-}
+    site: {
+        name: string;
+        baseUrl?: string;
+        locale?: string;
+    };
 
-export interface NavAction {
-    action: string;
-    args?: any;
-}
+    user: {
+        id: string;
+        displayName?: string;
+    };
 
-export interface NavPlan {
-    steps: NavAction[];
-    rationale?: string;
-}
+    nav: {
+        routes: Array<{
+            id: string;                 // "clients.list"
+            path: string;               // "/clients"
+            title: string;              // "Clientes"
+            keywords?: string[];
 
-export interface PortalSpec {
-    graph: NavGraph;
-    actions: Record<string, (args: any) => Promise<any>>;
-    state?: {
-        get: () => Promise<{ route: string; pageId?: string; selection?: any }>;
+            // Qué cosas se pueden "clicar" en ESTA pantalla para navegar o abrir algo
+            clickTargets?: ClickTarget[];
+        }>;
+
+        // Elementos globales (header/nav/sidebar) disponibles casi siempre
+        globalClickTargets?: ClickTarget[];
     };
 }
 
+export type ClickTarget =
+    | {
+        id: string;                 // "btn.createClient"
+        kind: "button" | "link";
+        label: string;              // texto visible: "Crear cliente"
+        keywords?: string[];        // cómo lo pediría un humano
+        // cómo identificarlo en tu front
+        selector?: string;          // css selector (si lo tienes)
+        testId?: string;            // data-testid / automation id
+        href?: string;              // si es link
+        // qué produce el click (de cara al agente)
+        action: {
+            type: "navigate";
+            toRouteId?: string;       // recomendado
+            toPath?: string;          // fallback
+        };
+    }
+    | {
+        id: string;
+        kind: "button" | "link";
+        label: string;
+        keywords?: string[];
+        selector?: string;
+        testId?: string;
+        action: {
+            type: "open";             // modal/drawer/panel (sin “tools”)
+            targetId: string;         // "filtersPanel" / "helpModal"
+        };
+    };
+
 export interface ChatPortalAPI {
-    registerPortal(spec: PortalSpec): void;
-    executePlan(plan: NavPlan): Promise<{ status: "ok" | "error"; details?: any }>;
+    registerPortal(context: AppContext): void;
+    // Keeping executePlan for now as it's used in services, but it might need rethink
+    executePlan(plan: any): Promise<{ status: "ok" | "error"; details?: any }>;
 }
+

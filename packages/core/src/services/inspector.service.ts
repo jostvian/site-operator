@@ -1,11 +1,13 @@
 import type { AgentState, Message, InspectorEvent } from "../models/chat.types";
+import type { AppContext } from "../models/portal.types";
+
 
 /**
  * Servicio para gestionar la información de inspección del agente.
  * Mantiene un registro del contexto, mensajes y eventos de streaming.
  */
 export class InspectorService extends EventTarget {
-    private _context: AgentState | null = null;
+    private _context: AgentState | AppContext | null = null;
     private _messages: Message[] = [];
     private _stream: InspectorEvent[] = [];
 
@@ -17,10 +19,11 @@ export class InspectorService extends EventTarget {
      * Actualiza el contexto actual.
      * @param context Nuevo contexto del agente.
      */
-    setContext(context: AgentState | null) {
+    setContext(context: AgentState | AppContext | null) {
         this._context = context;
         this.notify();
     }
+
 
     /**
      * Actualiza la lista de mensajes.

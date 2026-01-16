@@ -1,6 +1,8 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { chatService } from '../services/chat.service';
 import type { AgentState } from '../models/chat.types';
+import type { AppContext } from '../models/portal.types';
+
 
 /**
  * Controlador reactivo para gestionar la conexión con el ChatService.
@@ -70,11 +72,12 @@ export class ChatController implements ReactiveController {
 
     /**
      * Establece el contexto de la aplicación.
-     * @param context Objeto AgentState con el contexto.
+     * @param context Objeto AgentState o AppContext con el contexto.
      */
-    setAppContext(context: AgentState) {
+    setAppContext(context: AgentState | AppContext) {
         return chatService.setAppContext(context);
     }
+
 
     /**
      * Refresca el listado de conversaciones desde el servidor.

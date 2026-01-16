@@ -1,7 +1,7 @@
-import type { ChatPortalAPI, PortalSpec, NavPlan } from "../models/portal.types";
+import type { ChatPortalAPI, AppContext } from "../models/portal.types";
 
 export class ChatPortalService implements ChatPortalAPI {
-    private _spec: PortalSpec | null = null;
+    private _context: AppContext | null = null;
     private static _instance: ChatPortalService;
 
     private constructor() { }
@@ -13,40 +13,33 @@ export class ChatPortalService implements ChatPortalAPI {
         return ChatPortalService._instance;
     }
 
-    registerPortal(spec: PortalSpec): void {
-        console.log('Registering portal spec', spec);
-        this._spec = spec;
+    registerPortal(context: AppContext): void {
+        console.log('Registering app context', context);
+        this._context = context;
     }
 
-    async executePlan(plan: NavPlan): Promise<{ status: "ok" | "error"; details?: any }> {
-        if (!this._spec) {
+    async executePlan(plan: any): Promise<{ status: "ok" | "error"; details?: any }> {
+        if (!this._context) {
             console.warn('No portal registered. Cannot execute plan.');
             return { status: "error", details: "No portal registered" };
         }
 
-        console.log('Executing plan:', plan);
-
-        try {
-            for (const step of plan.steps) {
-                const actionFn = this._spec.actions[step.action];
-                if (actionFn) {
-                    console.log(`Executing portal action: ${step.action}`, step.args);
-                    await actionFn(step.args);
-                } else {
-                    console.warn(`Action ${step.action} not found in portal spec.`);
-                    throw new Error(`Action ${step.action} not found`);
-                }
-            }
-            return { status: "ok" };
-        } catch (error: any) {
-            console.error('Error executing plan:', error);
-            return { status: "error", details: error.message || error };
-        }
+        console.log('Executing plan (simplified):', plan);
+        // TODO: Implement execution logic based on ClickTarget actions
+        return { status: "ok" };
     }
 
-    public get specs(): PortalSpec | null {
-        return this._spec;
+    public get context(): AppContext | null {
+        return this._context;
+    }
+
+    /**
+     * @deprecated Use context instead
+     */
+    public get specs(): any {
+        return this._context;
     }
 }
 
 export const chatPortalService = ChatPortalService.getInstance();
+

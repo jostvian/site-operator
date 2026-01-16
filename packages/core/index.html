@@ -20,7 +20,41 @@
 </head>
 
 <body>
-  <agent-chat inspector="true" interceptor="true"></agent-chat>
+  <script type="module">
+    import { chatPortalService } from './dist/site-operator.es.js';
+
+    // 1. Register a Portal Specification
+    chatPortalService.registerPortal({
+      graph: {
+        nodes: [
+          { id: 'home', description: 'The home page' },
+          { id: 'settings', description: 'User settings page' }
+        ],
+        edges: [
+          { from: 'home', to: 'settings', label: 'Go to settings' }
+        ]
+      },
+      actions: {
+        navigate: async (args) => {
+          console.log('[Demo] Executing navigate action:', args);
+          return { success: true };
+        },
+        highlight: async (args) => {
+          console.log('[Demo] Highlighting element:', args);
+          return { success: true };
+        }
+      },
+      state: {
+        get: async () => ({
+          route: '/home',
+          pageId: 'home'
+        })
+      }
+    });
+
+
+  </script>
+  <agent-chat inspector="true" interceptor="true" app-name="DemoApp" portal-name="DemoPortal"></agent-chat>
 </body>
 
 </html>

@@ -1,5 +1,7 @@
 import { HttpAgent } from "@ag-ui/client";
 import type { ChatThread, Message, AgentState, ConversationSummary } from "../models/chat.types";
+import type { AppContext } from "../models/portal.types";
+
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
@@ -12,7 +14,7 @@ export class ChatService extends EventTarget {
         isRunning: false,
     };
     private _conversations: ConversationSummary[] = [];
-    private _appContext: AgentState | null = null;
+    private _appContext: AgentState | AppContext | null = null;
 
     private subscriber: ChatSubscriber;
 
@@ -51,9 +53,9 @@ export class ChatService extends EventTarget {
     /**
      * Establece el contexto de la aplicación para el agente.
      * Este contexto se envía en cada mensaje.
-     * @param context El contexto de la aplicación (AgentState)
+     * @param context El contexto de la aplicación (AgentState o AppContext)
      */
-    setAppContext(context: AgentState) {
+    setAppContext(context: AgentState | AppContext) {
         this._appContext = context;
         inspectorService.setContext(context);
         this.notify();
@@ -95,9 +97,13 @@ export class ChatService extends EventTarget {
             ];
 
             if (this._appContext) {
+                const contextValue = typeof this._appContext === 'object' && 'v' in this._appContext
+                    ? JSON.stringify(this._appContext)
+                    : JSON.stringify(this._appContext);
+
                 contextItems.push({
-                    value: JSON.stringify(this._appContext),
-                    description: "AgentState"
+                    value: contextValue,
+                    description: "AppContext"
                 });
             }
             this.agent.state = this._appContext;
@@ -105,6 +111,7 @@ export class ChatService extends EventTarget {
             await this.agent.runAgent({
                 context: contextItems
             }, this.subscriber);
+
 
         } catch (error) {
             console.error("Failed to send message", error);

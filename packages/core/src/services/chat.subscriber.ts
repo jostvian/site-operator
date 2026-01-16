@@ -12,7 +12,6 @@ import type {
 import { ChatService } from "./chat.service";
 import { inspectorService } from "./inspector.service";
 import { chatPortalService } from "./chat-portal.service";
-import type { NavPlan } from "../models/portal.types";
 
 export class ChatSubscriber implements AgentSubscriber {
     private service: ChatService;
@@ -93,7 +92,7 @@ export class ChatSubscriber implements AgentSubscriber {
             // Let's assume args *is* the plan or contains it.
             // Safest bet: pass args as NavPlan
 
-            const result = await chatPortalService.executePlan(params.toolCallArgs as unknown as NavPlan);
+            const result = await chatPortalService.executePlan(params.toolCallArgs);
 
             // We might want to send the result back to the agent?
             // The subscriber returns MaybePromise<AgentStateMutation | void>.
@@ -116,9 +115,10 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onClientToolCall', params.event);
         if (params.toolName === 'executePlan') {
             console.log('ChatSubscriber: Received executePlan client tool call', params.args);
-            await chatPortalService.executePlan(params.args as NavPlan);
+            await chatPortalService.executePlan(params.args);
         }
     }
+
 
     onEvent(params: { event: BaseEvent } & AgentSubscriberParams) {
         // Log all recognized events to inspector if they are not specifically handled (or even if they are)
