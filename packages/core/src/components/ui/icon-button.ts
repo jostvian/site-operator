@@ -1,7 +1,8 @@
 import { LitElement, html } from 'lit';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { styles } from './icon-button.styles';
 
+@customElement('agent-icon-button')
 export class AgentIconButton extends LitElement {
   static styles = styles;
 
@@ -14,10 +15,6 @@ export class AgentIconButton extends LitElement {
       </button>
     `;
   }
-}
-
-if (!customElements.get('agent-icon-button')) {
-  customElements.define('agent-icon-button', AgentIconButton);
 }
 
 declare global {
