@@ -12,32 +12,74 @@ npm install site-operator
 
 ## Usage
 
-### Vanilla JS
+### React
 
-```javascript
-import { mount } from 'site-operator';
+Site Operator provides a React wrapper for easy integration.
 
-// Mount the chat widget
-mount(document.body, {
-  backendUrl: 'http://localhost:8001/ag_ui',
-  appName: 'My App'
-});
+```tsx
+import { AgentChat, useChatPortal, type AppContext, type AppState } from 'site-operator-react';
 
-// Register portal actions (Copilot)
-import { chatPortalService } from 'site-operator';
+const MyApp = () => {
+  // 1. Static Context (Site, User, Routes)
+  const context: AppContext = {
+    v: "1.1",
+    site: { name: "Mi Portal", baseUrl: "https://miportal.com", locale: "es-CO" },
+    user: { id: "u-123", displayName: "Jost" },
+    nav: {
+      globalClickTargets: [
+        {
+          id: "lnk.nav.clients",
+          kind: "link",
+          label: "Clientes",
+          testId: "nav-clients",
+          action: { "type": "navigate", "toRouteId": "clients.list", "toPath": "/clients" }
+        }
+      ],
+      routes: [
+        {
+          id: "clients.list",
+          path: "/clients",
+          title: "Clientes",
+          keywords: ["clientes", "personas"],
+          clickTargets: [
+            {
+              id: "btn.createClient",
+              kind: "button",
+              label: "Crear cliente",
+              keywords: ["nuevo cliente", "crear"],
+              testId: "clients-create",
+              action: { "type": "navigate", "toRouteId": "clients.create", "toPath": "/clients/new" }
+            }
+          ]
+        }
+      ]
+    }
+  };
 
-chatPortalService.registerPortal({
-  actions: {
-    navigate: (args) => console.log('Navigating to', args.url)
-  }
-});
+  // 2. Dynamic State (Location, UI, Focus)
+  const state: AppState = {
+    v: "1.1",
+    location: {
+      routeId: "clients.list",
+      path: "/clients?status=active",
+      params: { "status": "active" },
+      title: "Clientes"
+    },
+    ui: {
+      visibleClickTargetIds: ["lnk.nav.clients", "btn.createClient"]
+    },
+    focus: { "type": "client", "id": "c-77", "label": "ACME S.A." }
+  };
+
+  useChatPortal(context);
+
+  return (
+    <AgentChat 
+      backendUrl="http://localhost:8001/ag_ui"
+      appName="My App"
+      context={{ appContext: context, appState: state }}
+    />
+  );
+};
 ```
 
-### HTML
-
-You can also use it directly if loaded via script tag (assuming UMD build):
-
-```html
-<script src="path/to/site-operator.umd.js"></script>
-<agent-chat backend-url="..." app-name="..."></agent-chat>
-```

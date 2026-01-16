@@ -1,6 +1,7 @@
 import { HttpAgent } from "@ag-ui/client";
-import type { ChatThread, Message, AgentState, ConversationSummary } from "../models/chat.types";
+import type { ChatThread, Message, AgentState, ConversationSummary, AppState } from "../models/chat.types";
 import type { AppContext } from "../models/portal.types";
+
 
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
@@ -14,7 +15,13 @@ export class ChatService extends EventTarget {
         isRunning: false,
     };
     private _conversations: ConversationSummary[] = [];
-    private _appContext: AgentState | AppContext | null = null;
+    private _appContext: AppContext | AgentState | null = null;
+    private _appState: AppState = {
+        v: "1.1",
+        location: { path: "" },
+        ui: { visibleClickTargetIds: [] }
+    };
+
 
     private subscriber: ChatSubscriber;
 
@@ -57,9 +64,48 @@ export class ChatService extends EventTarget {
      */
     setAppContext(context: AgentState | AppContext) {
         this._appContext = context;
-        inspectorService.setContext(context);
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
     }
+
+    /**
+     * Establece el estado dinámico de la aplicación.
+     * @param state El estado completo de la aplicación.
+     */
+    setAppState(state: AppState) {
+        this._appState = state;
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        this.notify();
+    }
+
+    /**
+     * Actualiza el estado dinámico de la aplicación de forma parcial.
+     * @param partial El estado parcial de la aplicación.
+     */
+    updateAppState(partial: Partial<AppState>) {
+        this._appState = { ...this._appState, ...partial };
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        this.notify();
+    }
+
+    setAppLocation(location: AppState["location"]) {
+        this._appState.location = location;
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        this.notify();
+    }
+
+    setAppUI(ui: AppState["ui"]) {
+        this._appState.ui = ui;
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        this.notify();
+    }
+
+    setAppFocus(focus: AppState["focus"]) {
+        this._appState.focus = focus;
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        this.notify();
+    }
+
 
     async sendMessage(content: string) {
         if (!this.agent) {
@@ -106,11 +152,23 @@ export class ChatService extends EventTarget {
                     description: "AppContext"
                 });
             }
-            this.agent.state = this._appContext;
+
+            if (this._appState) {
+                contextItems.push({
+                    value: JSON.stringify(this._appState),
+                    description: "AppState"
+                });
+            }
+
+            this.agent.state = {
+                appContext: this._appContext,
+                appState: this._appState
+            };
 
             await this.agent.runAgent({
                 context: contextItems
             }, this.subscriber);
+
 
 
         } catch (error) {

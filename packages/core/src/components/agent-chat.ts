@@ -4,8 +4,9 @@ import { styles } from './agent-chat.styles';
 import './chat-header';
 import './chat-thread';
 import './chat-composer';
-import type { AgentState } from '../models/chat.types';
+import type { AgentState, AppState } from '../models/chat.types';
 import type { AppContext } from '../models/portal.types';
+
 import './chat-history-list';
 
 import './inspector-window';
@@ -80,6 +81,27 @@ export class AgentChat extends LitElement {
     public setAppContext(appContext: AgentState | AppContext) {
         this._chatController.setAppContext(appContext);
     }
+
+    /**
+     * API Pública para establecer el estado dinámico de la aplicación.
+     * @param appState Estado dinámico de la aplicación.
+     */
+    public setAppState(appState: AppState) {
+        this._chatController.setAppState(appState);
+    }
+
+    public setAppLocation(location: AppState["location"]) {
+        this._chatController.setAppLocation(location);
+    }
+
+    public setAppUI(ui: AppState["ui"]) {
+        this._chatController.setAppUI(ui);
+    }
+
+    public setAppFocus(focus: AppState["focus"]) {
+        this._chatController.setAppFocus(focus);
+    }
+
 
 
     private _toggleHistory() {

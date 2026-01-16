@@ -1,7 +1,8 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { chatService } from '../services/chat.service';
-import type { AgentState } from '../models/chat.types';
+import type { AgentState, AppState } from '../models/chat.types';
 import type { AppContext } from '../models/portal.types';
+
 
 
 /**
@@ -77,6 +78,27 @@ export class ChatController implements ReactiveController {
     setAppContext(context: AgentState | AppContext) {
         return chatService.setAppContext(context);
     }
+
+    /**
+     * Establece el estado dinámico de la aplicación.
+     * @param state Objeto AppState.
+     */
+    setAppState(state: AppState) {
+        return chatService.setAppState(state);
+    }
+
+    setAppLocation(location: AppState["location"]) {
+        return chatService.setAppLocation(location);
+    }
+
+    setAppUI(ui: AppState["ui"]) {
+        return chatService.setAppUI(ui);
+    }
+
+    setAppFocus(focus: AppState["focus"]) {
+        return chatService.setAppFocus(focus);
+    }
+
 
 
     /**
