@@ -6,6 +6,7 @@ import type { AppContext } from "../models/portal.types";
 import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
+import { conversationService } from "./conversation.service";
 
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
@@ -246,11 +247,11 @@ export class ChatService extends EventTarget {
      */
     async refreshConversations() {
         try {
-            // const conversations = await conversationService.getConversations();
-            // this._conversations = conversations.map(c => ({
-            //     id: c.id,
-            //     title: c.title
-            // }));
+            const conversations = await conversationService.getConversations();
+            this._conversations = conversations.map(c => ({
+                id: c.id,
+                title: c.title
+            }));
             this.notify();
         } catch (error) {
             console.error("Failed to refresh conversations", error);
