@@ -39,8 +39,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "jostvian-agent"
-          git config user.email "agent@jostvian.com"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Bump Version
         id: bump
