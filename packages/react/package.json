@@ -32,7 +32,7 @@
     "dev": "vite build --watch"
   },
   "dependencies": {
-    "site-operator": "^0.0.1"
+    "site-operator": "^0.1.14"
   },
   "peerDependencies": {
     "react": "^19.0.0",
