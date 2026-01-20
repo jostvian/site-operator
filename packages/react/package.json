@@ -7,13 +7,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jostvian-agent/site-operator.git",
+    "url": "git+https://github.com/jostvian/site-operator.git",
     "directory": "packages/react"
   },
   "bugs": {
-    "url": "https://github.com/jostvian-agent/site-operator/issues"
+    "url": "https://github.com/jostvian/site-operator/issues"
   },
-  "homepage": "https://github.com/jostvian-agent/site-operator#readme",
+  "homepage": "https://github.com/jostvian/site-operator#readme",
   "main": "./dist/site-operator-react.umd.js",
   "module": "./dist/site-operator-react.es.js",
   "types": "./dist/index.d.ts",

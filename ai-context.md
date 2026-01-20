@@ -50,7 +50,7 @@ Enables the agent to navigate the host app.
 2. **Architecture**: Respect the separation of concerns. UI -> Controller -> Service.
 3. **Styling**: Use `styles/` folder or component-scoped styles. Avoid external CSS libs for simple things.
 4. **Build**: Always check `npm run build` after changes.
-5. **Commits**: Use `jostvian-agent` author.
+5. **Commits**: Use `jostvian` author.
 
 ## Directory Structure
 ```

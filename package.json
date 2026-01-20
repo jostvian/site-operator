@@ -4,9 +4,10 @@
   "description": "Monorepo for Site Operator and its framework wrappers.",
   "author": "jostvian",
   "license": "MIT",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jostvian-agent/site-operator.git"
+    "url": "git+https://github.com/jostvian/site-operator.git"
   },
   "workspaces": [
     "packages/*"
@@ -14,6 +15,5 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "dev": "npm run dev --workspace=site-operator"
-  },
-  "version": "0.0.1"
+  }
 }
