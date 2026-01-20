@@ -8,6 +8,7 @@ import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
 import { conversationService } from "./conversation.service";
 
+const threadIdPlaceHolder = "thread-placeholder";
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
     private _conversations: ConversationSummary[] = [];
@@ -41,6 +42,7 @@ export class ChatService extends EventTarget {
     initialize(config: { backendUrl: string, conversationUrl: string, appName: string, inspector?: boolean }) {
         this.agent = new HttpAgent({
             url: config.backendUrl,
+            threadId: threadIdPlaceHolder,
         });
         conversationService.initialize(config.conversationUrl);
 
@@ -151,7 +153,7 @@ export class ChatService extends EventTarget {
         this.notify();
 
         try {
-            if (!this.agent?.threadId)
+            if (this.agent?.threadId == threadIdPlaceHolder)
                 await this._ensureConversation();
             // Add only the new message
             this.agent.addMessage(userMsg as Message);
@@ -178,8 +180,8 @@ export class ChatService extends EventTarget {
         if (!this.agent) {
             throw new Error("Agent not initialized");
         }
-        if (!this.agent?.threadId) {
-            const conversation = await conversationService.createConversation({});
+        if (this.agent?.threadId == threadIdPlaceHolder) {
+            const conversation = await conversationService.createConversation({ messages: [{ id: generateId("message"), role: "developer", content: "Application context: " + JSON.stringify(this._appContext) }] });
             this.agent.threadId = conversation.id;
             await this.sendMessage(JSON.stringify(`Application context: ${JSON.stringify(this._appContext)}`), "developer");
         }
