@@ -42,11 +42,13 @@ export class ChatThread extends LitElement {
 
     return html`
       <div class="messages-list">
-        ${this.messages.map((msg, index) => html`
+        ${this.messages
+        .filter(msg => msg.role === 'assistant' || msg.role === 'user')
+        .map((msg, index, filteredArr) => html`
           <agent-chat-message 
             .message=${msg} 
-            .isLast=${index === this.messages.length - 1}
-            .isStreaming=${this.isRunning && index === this.messages.length - 1}
+            .isLast=${index === filteredArr.length - 1}
+            .isStreaming=${this.isRunning && index === filteredArr.length - 1}
             .agentAvatar="${this.agentAvatar}">
           </agent-chat-message>
         `)}
