@@ -53,6 +53,7 @@ export const styles = css`
     border-radius: var(--agent-radius-3xl, 1.5rem);
     color: var(--agent-text-foreground, #09090b);
     line-height: 1.5;
+    white-space: pre-wrap;
   }
 
   :host([role="user"]) .bubble {
