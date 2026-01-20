@@ -72,8 +72,9 @@ export class ChatService extends EventTarget {
             await this.loadConversation(storedThreadId);
         }
 
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
-        inspectorService.setMessages(this.agent?.messages);
+        inspectorService.setContext(this._appContext);
+        inspectorService.setState(this._appState);
+        inspectorService.setMessages(this.agent?.messages || []);
     }
 
     /**
@@ -112,7 +113,7 @@ export class ChatService extends EventTarget {
      */
     setAppContext(context: AppContext) {
         this._appContext = context;
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        inspectorService.setContext(this._appContext);
         this.notify();
     }
 
@@ -124,7 +125,7 @@ export class ChatService extends EventTarget {
      */
     setAppState(state: AppState) {
         this._appState = state;
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
+        inspectorService.setState(this._appState);
         this.notify();
     }
 
@@ -134,25 +135,21 @@ export class ChatService extends EventTarget {
      */
     updateAppState(partial: Partial<AppState>) {
         this._appState = { ...this._appState, ...partial };
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
     }
 
     setAppLocation(location: AppState["location"]) {
         this._appState.location = location;
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
     }
 
     setAppUI(ui: AppState["ui"]) {
         this._appState.ui = ui;
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
     }
 
     setAppFocus(focus: AppState["focus"]) {
         this._appState.focus = focus;
-        inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
     }
 
@@ -318,6 +315,7 @@ export class ChatService extends EventTarget {
 
     private notify() {
         inspectorService.setMessages(this.agent?.messages || []);
+        inspectorService.setState(this._appState);
         this.dispatchEvent(new CustomEvent("state-change"));
     }
 }

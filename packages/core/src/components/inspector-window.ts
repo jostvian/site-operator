@@ -7,12 +7,13 @@ import { styles } from './inspector-window.styles';
 export class InspectorWindow extends LitElement {
   static styles = styles;
 
-  @state() private _activeTab: 'context' | 'messages' | 'stream' = 'stream';
+  @state() private _activeTab: 'context' | 'state' | 'messages' | 'stream' = 'stream';
   @state() private _context: any = null;
+  @state() private _appState: any = null;
   @state() private _messages: any[] = [];
   @state() private _stream: any[] = [];
-  @state() private _isEditingContext = false;
-  @state() private _editedContext = "";
+  @state() private _isEditing = false;
+  @state() private _editedData = "";
 
   private _isDragging = false;
   private _isResizing = false;
@@ -63,6 +64,7 @@ export class InspectorWindow extends LitElement {
 
   private _updateData() {
     this._context = inspectorService.context;
+    this._appState = inspectorService.state;
     this._messages = inspectorService.messages;
     this._stream = inspectorService.stream;
     this.requestUpdate();
@@ -153,6 +155,7 @@ export class InspectorWindow extends LitElement {
       </div>
       <div class="tabs">
         <div class="tab ${this._activeTab === 'context' ? 'active' : ''}" @click="${() => this._activeTab = 'context'}">Context</div>
+        <div class="tab ${this._activeTab === 'state' ? 'active' : ''}" @click="${() => this._activeTab = 'state'}">State</div>
         <div class="tab ${this._activeTab === 'messages' ? 'active' : ''}" @click="${() => this._activeTab = 'messages'}">Messages</div>
         <div class="tab ${this._activeTab === 'stream' ? 'active' : ''}" @click="${() => this._activeTab = 'stream'}">Stream</div>
       </div>
@@ -166,28 +169,9 @@ export class InspectorWindow extends LitElement {
   private _renderContent() {
     switch (this._activeTab) {
       case 'context':
-        if (this._isEditingContext) {
-          return html`
-            <div class="editor-container">
-              <textarea 
-                class="context-editor" 
-                .value="${this._editedContext}"
-                @input="${(e: any) => this._editedContext = e.target.value}"
-              ></textarea>
-              <div class="editor-actions">
-                <button class="cancel-button" @click="${this._handleCancelEdit}">Cancel</button>
-                <button class="save-button" @click="${this._handleSaveContext}">Save Changes</button>
-              </div>
-            </div>
-          `;
-        }
-        return html`
-          <div class="context-header">
-            <span>Current Context & State</span>
-            <button class="edit-button" @click="${this._handleEditContext}">Edit</button>
-          </div>
-          <pre>${JSON.stringify(this._context, null, 2)}</pre>
-        `;
+        return this._renderEditableSection('context', this._context);
+      case 'state':
+        return this._renderEditableSection('state', this._appState);
       case 'messages':
         return html`<pre>${JSON.stringify(this._messages, null, 2)}</pre>`;
       case 'stream':
@@ -213,24 +197,50 @@ export class InspectorWindow extends LitElement {
     }
   }
 
-  private _handleEditContext() {
-    this._editedContext = JSON.stringify(this._context, null, 2);
-    this._isEditingContext = true;
+  private _renderEditableSection(type: 'context' | 'state', data: any) {
+    if (this._isEditing) {
+      return html`
+        <div class="editor-container">
+          <textarea 
+            class="context-editor" 
+            .value="${this._editedData}"
+            @input="${(e: any) => this._editedData = e.target.value}"
+          ></textarea>
+          <div class="editor-actions">
+            <button class="cancel-button" @click="${this._handleCancelEdit}">Cancel</button>
+            <button class="save-button" @click="${() => this._handleSave(type)}">Save Changes</button>
+          </div>
+        </div>
+      `;
+    }
+    return html`
+      <div class="context-header">
+        <span>Current ${type === 'context' ? 'Static Context' : 'Dynamic State'}</span>
+        <button class="edit-button" @click="${() => this._handleEdit(data)}">Edit</button>
+      </div>
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+    `;
+  }
+
+  private _handleEdit(data: any) {
+    this._editedData = JSON.stringify(data, null, 2);
+    this._isEditing = true;
   }
 
   private _handleCancelEdit() {
-    this._isEditingContext = false;
+    this._isEditing = false;
   }
 
-  private _handleSaveContext() {
+  private _handleSave(type: 'context' | 'state') {
     try {
-      const parsed = JSON.parse(this._editedContext);
-      this.dispatchEvent(new CustomEvent('context-update', {
+      const parsed = JSON.parse(this._editedData);
+      const eventName = type === 'context' ? 'context-update' : 'state-update';
+      this.dispatchEvent(new CustomEvent(eventName, {
         detail: parsed,
         bubbles: true,
         composed: true
       }));
-      this._isEditingContext = false;
+      this._isEditing = false;
     } catch (e) {
       alert('Invalid JSON: ' + (e as Error).message);
     }

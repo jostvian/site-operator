@@ -161,7 +161,8 @@ export class AgentChat extends LitElement {
         ${this._inspectorOpen ? html`
           <agent-inspector-window 
             @close="${this._toggleInspector}"
-            @context-update="${(e: CustomEvent) => this._handleContextUpdate(e)}"
+            @context-update="${this._handleContextUpdate}"
+            @state-update="${this._handleStateUpdate}"
           ></agent-inspector-window>
         ` : ''}
       </div>
@@ -169,13 +170,11 @@ export class AgentChat extends LitElement {
     }
 
     private _handleContextUpdate(e: CustomEvent) {
-        const detail = e.detail;
-        if (detail.context) {
-            this.setAppContext(detail.context);
-        }
-        if (detail.state) {
-            this.setAppState(detail.state);
-        }
+        this.setAppContext(e.detail);
+    }
+
+    private _handleStateUpdate(e: CustomEvent) {
+        this.setAppState(e.detail);
     }
 }
 

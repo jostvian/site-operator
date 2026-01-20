@@ -7,19 +7,30 @@ import type { Message, InspectorEvent } from "../models/chat.types";
  */
 export class InspectorService extends EventTarget {
     private _context: any | null = null;
+    private _state: any | null = null;
     private _messages: Message[] = [];
     private _stream: InspectorEvent[] = [];
 
     get context() { return this._context; }
+    get state() { return this._state; }
     get messages() { return this._messages; }
     get stream() { return this._stream; }
 
     /**
-     * Actualiza el contexto actual.
+     * Actualiza el contexto actual (estático).
      * @param context Nuevo contexto del agente.
      */
     setContext(context: any | null) {
         this._context = context;
+        this.notify();
+    }
+
+    /**
+     * Actualiza el estado actual (dinámico).
+     * @param state Nuevo estado del agente.
+     */
+    setState(state: any | null) {
+        this._state = state;
         this.notify();
     }
 
