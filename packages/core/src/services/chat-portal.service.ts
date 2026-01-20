@@ -1,10 +1,12 @@
 import type { ChatPortalAPI, AppContext } from "../models/portal.types";
 
-export class ChatPortalService implements ChatPortalAPI {
+export class ChatPortalService extends EventTarget implements ChatPortalAPI {
     private _context: AppContext | null = null;
     private static _instance: ChatPortalService;
 
-    private constructor() { }
+    private constructor() {
+        super();
+    }
 
     public static getInstance(): ChatPortalService {
         if (!ChatPortalService._instance) {
@@ -16,6 +18,7 @@ export class ChatPortalService implements ChatPortalAPI {
     registerPortal(context: AppContext): void {
         console.log('Registering app context', context);
         this._context = context;
+        this.dispatchEvent(new CustomEvent('portal-registered', { detail: context }));
     }
 
     async executePlan(plan: any): Promise<{ status: "ok" | "error"; details?: any }> {

@@ -7,6 +7,7 @@ import { generateId } from "../utils/id-generator";
 import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
 import { conversationService } from "./conversation.service";
+import { chatPortalService } from "./chat-portal.service";
 
 const threadIdPlaceHolder = "thread-placeholder";
 const SESSION_THREAD_ID_KEY = "site-operator-thread-id";
@@ -34,6 +35,12 @@ export class ChatService extends EventTarget {
     constructor() {
         super();
         this.subscriber = new ChatSubscriber(this);
+
+        // Listen for context registration from other parts of the app
+        chatPortalService.addEventListener('portal-registered', (e: any) => {
+            console.log('ChatService: Portal context detected', e.detail);
+            this.setAppContext(e.detail);
+        });
     }
 
     /**
@@ -48,19 +55,24 @@ export class ChatService extends EventTarget {
         });
         conversationService.initialize(config.conversationUrl);
 
-        this._appContext = {
-            v: "1.1",
-            site: {
-                name: config.appName,
-                locale: window.navigator.language || window.navigator.languages[0] || "en",
-            },
-        };
+        // Prioritize already registered portal context if available
+        if (chatPortalService.context) {
+            this._appContext = chatPortalService.context;
+        } else {
+            this._appContext = {
+                v: "1.1",
+                site: {
+                    name: config.appName,
+                    locale: window.navigator.language || window.navigator.languages[0] || "en",
+                },
+            };
+        }
 
         if (storedThreadId) {
             await this.loadConversation(storedThreadId);
         }
 
-        inspectorService.setContext(this._appContext);
+        inspectorService.setContext({ context: this._appContext, state: this._appState });
         inspectorService.setMessages(this.agent?.messages);
     }
 
