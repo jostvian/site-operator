@@ -37,7 +37,7 @@ export class ConversationService {
      * @param conversation Datos de la conversación a crear.
      * @returns Promesa con la conversación creada
      */
-    async createConversation(conversation: Partial<Pick<Conversation, 'title'>>): Promise<Conversation> {
+    async createConversation(conversation: Partial<Conversation>): Promise<Conversation> {
         const payload = {
             ...conversation,
             title: conversation.title || "Nueva conversación"

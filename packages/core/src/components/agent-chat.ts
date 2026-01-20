@@ -4,8 +4,8 @@ import { styles } from './agent-chat.styles';
 import './chat-header';
 import './chat-thread';
 import './chat-composer';
-import type { AgentState, AppState } from '../models/chat.types';
-import type { AppContext } from '../models/portal.types';
+import type { AppContext } from "../models/portal.types.js";
+import type { AppState } from "../models/chat.types.js";
 
 import './chat-history-list';
 
@@ -22,10 +22,10 @@ export class AgentChat extends LitElement {
     private _chatController = new ChatController(this);
     @property({ type: String, attribute: 'backend-url' }) backendUrl = '/ag_ui';
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
-
+    @property({ type: String, attribute: 'conversation-url' }) conversationUrl = '';
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
     @property({ type: String, attribute: 'disclaimer' }) disclaimer = 'Agent puede cometer errores. Verifica la información importante.';
-    @property({ type: String, attribute: 'empty-text' }) emptyText = '¡Hola! Soy SAMI, tu asistente virtual de Skandia. ¿En qué puedo ayudarte hoy?';
+    @property({ type: String, attribute: 'empty-text' }) emptyText = '¿En qué puedo ayudarte hoy?';
     @property({ type: String, attribute: 'placeholder' }) placeholder = 'Enviar un mensaje a Agent';
     @property({ type: String, attribute: 'header-title' }) headerTitle = 'Agent';
     @property({ type: Boolean, attribute: 'hide-header' }) hideHeader = false;
@@ -36,10 +36,13 @@ export class AgentChat extends LitElement {
     @state() private _inspectorEnabled = false;
 
     willUpdate(changedProperties: Map<string, any>) {
-        if (changedProperties.has('backendUrl') || changedProperties.has('appName') || changedProperties.has('conversationUrl')) {
+        if (changedProperties.has('backendUrl')
+            || changedProperties.has('appName')
+            || changedProperties.has('conversationUrl')) {
             this._chatController.initialize({
                 backendUrl: this.backendUrl,
                 appName: this.appName,
+                conversationUrl: this.conversationUrl,
                 inspector: this.hasAttribute('inspector') || (this as any).inspector
             });
             this._inspectorEnabled = this.hasAttribute('inspector') || (this as any).inspector;
@@ -78,7 +81,7 @@ export class AgentChat extends LitElement {
      * API Pública para establecer el contexto de la aplicación.
      * @param appContext Contexto de la aplicación (AgentState o AppContext)
      */
-    public setAppContext(appContext: AgentState | AppContext) {
+    public setAppContext(appContext: AppContext) {
         this._chatController.setAppContext(appContext);
     }
 
@@ -136,13 +139,13 @@ export class AgentChat extends LitElement {
             @select-thread="${this._handleSelectThread}"
         ></agent-chat-history-list>
         <agent-chat-thread 
-            .messages="${this._chatController.thread.messages}" 
-            ?isRunning="${this._chatController.thread.isRunning}"
+            .messages="${this._chatController.messages}" 
+            ?isRunning="${this._chatController.isRunning}"
             .agentAvatar="${this.agentAvatar}"
             .emptyText="${this.emptyText}">
         </agent-chat-thread>
         <agent-chat-composer 
-            ?isRunning="${this._chatController.thread.isRunning}" 
+            ?isRunning="${this._chatController.isRunning}" 
             .disclaimer="${this.disclaimer}"
             .placeholder="${this.placeholder}"
             @send="${this._handleSend}">

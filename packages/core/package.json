@@ -1,7 +1,7 @@
 {
   "name": "site-operator",
   "private": false,
-  "version": "0.1.11",
+  "version": "0.1.13",
   "description": "A framework-agnostic AI chat widget that acts as a copilot for host applications.",
   "type": "module",
   "author": "jostvian",

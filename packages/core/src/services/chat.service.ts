@@ -1,5 +1,5 @@
 import { HttpAgent, type Message } from "@ag-ui/client";
-import type { ConversationSummary, AppState, AgentState, ChatThread, UIMessage } from "../models/chat.types";
+import type { ConversationSummary, AppState, UIMessage } from "../models/chat.types.js";
 import type { AppContext } from "../models/portal.types";
 
 
@@ -10,19 +10,21 @@ import { conversationService } from "./conversation.service";
 
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
-    private _thread: ChatThread = {
-        id: "",
-        messages: [],
-        isRunning: false,
-        title: "",
-    };
     private _conversations: ConversationSummary[] = [];
-    private _appContext: AppContext | AgentState | null = null;
+    private _appContext: AppContext | null = null;
     private _appState: AppState = {
         v: "1.1",
         location: { path: "" },
         ui: { visibleClickTargetIds: [] }
     };
+
+    get isRunning() {
+        return this.agent?.isRunning || false;
+    }
+
+    get messages() {
+        return this.agent?.messages || [];
+    }
 
 
     private subscriber: ChatSubscriber;
@@ -36,10 +38,11 @@ export class ChatService extends EventTarget {
      * Inicializa el servicio de chat con las URLs necesarias y el nombre de la aplicación.
      * @param config Configuración de inicialización.
      */
-    initialize(config: { backendUrl: string, appName: string, inspector?: boolean }) {
+    initialize(config: { backendUrl: string, conversationUrl: string, appName: string, inspector?: boolean }) {
         this.agent = new HttpAgent({
             url: config.backendUrl,
         });
+        conversationService.initialize(config.conversationUrl);
 
 
         this._appContext = {
@@ -50,12 +53,9 @@ export class ChatService extends EventTarget {
             },
 
         };
+
         inspectorService.setContext(this._appContext);
         inspectorService.setMessages(this.agent?.messages);
-    }
-
-    get thread() {
-        return this._thread;
     }
 
     get conversations() {
@@ -67,11 +67,13 @@ export class ChatService extends EventTarget {
      * Este contexto se envía en cada mensaje.
      * @param context El contexto de la aplicación (AgentState o AppContext)
      */
-    setAppContext(context: AppContext | AgentState) {
+    setAppContext(context: AppContext) {
         this._appContext = context;
         inspectorService.setContext({ context: this._appContext, state: this._appState });
         this.notify();
     }
+
+
 
     /**
      * Establece el estado dinámico de la aplicación.
@@ -144,52 +146,24 @@ export class ChatService extends EventTarget {
                 break;
         }
 
-        this._thread.messages = [...this._thread.messages, userMsg];
-        this._thread.isRunning = true;
-
 
 
         this.notify();
 
         try {
-
+            if (!this.agent?.threadId)
+                await this._ensureConversation();
             // Add only the new message
             this.agent.addMessage(userMsg as Message);
-
-            // Run the agent with subscriber
-            const contextItems = [
-                {
-                    value: new Date().toLocaleString(),
-                    description: "Current date and time"
-                }
-            ];
-
-            if (this._appContext) {
-                const contextValue = typeof this._appContext === 'object' && 'v' in this._appContext
-                    ? JSON.stringify(this._appContext)
-                    : JSON.stringify(this._appContext);
-
-                contextItems.push({
-                    value: contextValue,
-                    description: "AppContext"
-                });
-            }
-
-            if (this._appState) {
-                contextItems.push({
-                    value: JSON.stringify(this._appState),
-                    description: "AppState"
-                });
-            }
 
             this.agent.state = {
                 appContext: this._appContext,
                 appState: this._appState
             };
 
-            await this.agent.runAgent({
-                context: contextItems
-            }, this.subscriber);
+
+
+            await this.agent.runAgent({ tools: [] }, this.subscriber);
 
 
 
@@ -197,12 +171,24 @@ export class ChatService extends EventTarget {
             console.error("Failed to send message", error);
             // Add error message to thread?
         } finally {
-            this._thread.isRunning = false;
             this.notify();
+        }
+    }
+    async _ensureConversation() {
+        if (!this.agent) {
+            throw new Error("Agent not initialized");
+        }
+        if (!this.agent?.threadId) {
+            const conversation = await conversationService.createConversation({});
+            this.agent.threadId = conversation.id;
+            await this.sendMessage(JSON.stringify(`Application context: ${JSON.stringify(this._appContext)}`), "developer");
         }
     }
 
     addPlaceholderMessage() {
+        if (!this.agent) {
+            throw new Error("Agent not initialized");
+        }
         const placeholder: UIMessage = {
             id: "thinking-placeholder",
             role: "assistant",
@@ -210,13 +196,16 @@ export class ChatService extends EventTarget {
             createdAt: Date.now(),
             isThinking: true
         };
-        this._thread.messages = [...this._thread.messages, placeholder];
+        this.agent.messages = [...this.agent.messages, placeholder];
         this.notify();
     }
 
     prepareMessageForStreaming(newId: string) {
-        this._thread.messages = this._thread.messages.map(msg => {
-            if (msg.isThinking) {
+        if (!this.agent) {
+            throw new Error("Agent not initialized");
+        }
+        this.agent.messages = this.agent.messages.map(msg => {
+            if (msg.id === "thinking-placeholder" && this.isRunning) {
                 return {
                     ...msg,
                     id: newId,
@@ -229,7 +218,10 @@ export class ChatService extends EventTarget {
     }
 
     appendMessageContent(id: string, content: string) {
-        this._thread.messages = this._thread.messages.map(msg => {
+        if (!this.agent) {
+            throw new Error("Agent not initialized");
+        }
+        this.agent.messages = this.agent.messages.map(msg => {
             if (msg.id === id && typeof msg.content === 'string') {
                 return {
                     ...msg,
@@ -242,22 +234,21 @@ export class ChatService extends EventTarget {
     }
 
     setMessages(messages: Message[]) {
+        if (!this.agent) {
+            throw new Error("Agent not initialized");
+        }
         // Map external messages to our Message type if needed, or assume compatibility
         // Assuming strict compatibility for now
-        this._thread.messages = messages as UIMessage[];
+        this.agent.messages = messages as UIMessage[];
         this.notify();
     }
 
     async startNewThread() {
-        // Just reset locally. Conversation will be created on first message.
-        this._thread = {
-            id: "",
-            messages: [],
-            isRunning: false
-        };
 
         if (this.agent) {
             this.agent.threadId = "";
+            this.agent.messages = [];
+            this.agent.isRunning = false;
         }
 
         this.notify();
@@ -280,7 +271,7 @@ export class ChatService extends EventTarget {
     }
 
     private notify() {
-        inspectorService.setMessages(this._thread.messages);
+        inspectorService.setMessages(this.agent?.messages || []);
         this.dispatchEvent(new CustomEvent("state-change"));
     }
 }

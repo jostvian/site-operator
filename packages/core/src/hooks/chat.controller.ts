@@ -1,6 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { chatService } from '../services/chat.service';
-import type { AgentState, AppState } from '../models/chat.types';
+import type { AppState } from '../models/chat.types';
 import type { AppContext } from '../models/portal.types';
 
 
@@ -22,7 +22,7 @@ export class ChatController implements ReactiveController {
      * Inicializa el servicio de chat con las URLs necesarias y el nombre de la aplicación.
      * @param config Configuración de inicialización.
      */
-    initialize(config: { backendUrl: string, appName: string, inspector?: boolean }) {
+    initialize(config: { backendUrl: string, appName: string, conversationUrl: string, inspector?: boolean }) {
         return chatService.initialize(config);
     }
 
@@ -45,8 +45,15 @@ export class ChatController implements ReactiveController {
     /**
      * Retorna el estado actual del hilo de chat.
      */
-    get thread() {
-        return chatService.thread;
+    get isRunning() {
+        return chatService.isRunning;
+    }
+
+    /**
+     * Retorna el listado de mensajes.
+     */
+    get messages() {
+        return chatService.messages;
     }
 
     /**
@@ -75,7 +82,7 @@ export class ChatController implements ReactiveController {
      * Establece el contexto de la aplicación.
      * @param context Objeto AgentState o AppContext con el contexto.
      */
-    setAppContext(context: AgentState | AppContext) {
+    setAppContext(context: AppContext) {
         return chatService.setAppContext(context);
     }
 

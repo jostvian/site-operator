@@ -1,81 +1,76 @@
 # Site Operator
 
-A customizable, framework-agnostic AI chat widget that acts as a "copilot" for host applications. It connects to a backend agent and allows the agent to control the host app through a **Chat Portal API**.
+A customizable, framework-agnostic AI chat widget that acts as a "copilot" for host applications. It connects to a backend agent and allows the agent to observe and control the host app through its rich **Chat Portal Protocol**.
+
+## Key Features
+
+- **Framework Agnostic**: Core library built with Lit Web Components.
+- **React Ready**: Official wrapper for React 19.
+- **Deep Context**: Share your app's routes, UI components, and business context with the agent.
+- **Action Execution**: Enable the agent to navigate, open modals, or trigger custom app logic.
+- **Developer Tools**: Built-in inspector to debug agent-host communication.
 
 ## Monorepo Structure
 
-This repository is a monorepo containing the following packages:
+- **[`packages/core`](./packages/core)**: The core library (`site-operator`). Use this for Vanilla JS, Vue, Angular, or any other framework.
+- **[`packages/react`](./packages/react)**: React-specific wrapper (`site-operator-react`) with hooks and components.
 
-*   **`packages/core`** (`site-operator`): The core library built with Lit Web Components. It is framework-agnostic and can be used in any web application.
-*   **`packages/react`** (`site-operator-react`): A wrapper library for React 19 applications, providing a convenient `<AgentChat />` component and hooks.
-
-## Getting Started
-
-### Prerequisites
-
-*   Node.js (v18 or later recommended)
-*   npm (v9 or later, supporting workspaces)
-
-### Installation
-
-To install dependencies for all packages:
+## Installation
 
 ```bash
-npm install
-```
-
-### Building
-
-To build all packages:
-
-```bash
-npm run build
-```
-
-To build a specific package:
-
-```bash
-npm run build -w site-operator
+npm install site-operator
 # or
-npm run build -w site-operator-react
+npm install site-operator-react
 ```
 
-### Development
-
-To start the development server for the core package:
-
-```bash
-npm run dev -w site-operator
-```
-
-## Usage
-
-### Core (Vanilla JS / Web Components)
-
-```javascript
-import { mount } from 'site-operator';
-
-mount(document.body, {
-  backendUrl: 'http://localhost:8001/ag_ui',
-  appName: 'My App'
-});
-```
-
-### React
+## Quick Start (React)
 
 ```tsx
 import { AgentChat, useChatPortal } from 'site-operator-react';
 
+const myConfig = {
+  v: "1.1",
+  site: { name: "My Portal" },
+  nav: {
+    routes: [
+      { 
+        path: "/leads", 
+        name: "Leads", 
+        title: "Sales Leads",
+        clickTargets: [
+           { name: "New Lead", action: { type: "open", targetId: "create" } }
+        ]
+      }
+    ]
+  }
+};
+
 function App() {
-  useChatPortal({
-    // ... portal spec
-  });
+  // Register the app context so the agent knows the available actions
+  useChatPortal(myConfig);
 
   return (
     <AgentChat
-      backendUrl="http://localhost:8001/ag_ui"
-      appName="My React App"
+      backendUrl="https://your-api.com/ag_ui"
+      appName="My App"
+      inspector={true}
     />
   );
 }
 ```
+
+## Documentation
+
+For detailed information on how to define your application structure, visit the package-specific READMEs:
+
+- [Core Library Documentation (AppContext, AppState)](./packages/core/README.md)
+- [React Wrapper & Hooks](./packages/react/README.md)
+
+## Development
+
+```bash
+npm install
+npm run build
+npm run dev -w site-operator
+```
+

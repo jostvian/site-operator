@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { AgentChat as AgentChatElement, type AgentState, type AppState, type AppContext } from 'site-operator';
+import { AgentChat as AgentChatElement, type AppState, type AppContext } from 'site-operator';
 import 'site-operator';
 
 
@@ -18,7 +18,7 @@ export interface HeaderProps {
 }
 
 export interface ContextProps {
-  appContext?: AppContext | AgentState;
+  appContext?: AppContext;
   appState?: AppState;
 }
 
