@@ -79,6 +79,14 @@ export class ChatController implements ReactiveController {
     }
 
     /**
+     * Carga una conversación existente por su ID.
+     * @param id ID de la conversación a cargar.
+     */
+    loadConversation(id: string) {
+        return chatService.loadConversation(id);
+    }
+
+    /**
      * Establece el contexto de la aplicación.
      * @param context Objeto AgentState o AppContext con el contexto.
      */

@@ -116,6 +116,7 @@ export class AgentChat extends LitElement {
 
     private _handleSelectThread(e: CustomEvent) {
         console.log('Selected conversation:', e.detail.conversation);
+        this._chatController.loadConversation(e.detail.conversation.id);
         this._historyOpen = false;
     }
 

@@ -33,6 +33,19 @@ export class ConversationService {
     }
 
     /**
+     * Obtiene una conversación por su ID.
+     * @param id ID de la conversación
+     * @returns Promesa con la conversación
+     */
+    async getConversation(id: string): Promise<Conversation> {
+        const response = await fetch(`${this.baseUrl}/${id}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch conversation: ${response.statusText}`);
+        }
+        return response.json();
+    }
+
+    /**
      * Crea una nueva conversación.
      * @param conversation Datos de la conversación a crear.
      * @returns Promesa con la conversación creada

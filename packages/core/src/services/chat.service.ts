@@ -9,6 +9,7 @@ import { inspectorService } from "./inspector.service";
 import { conversationService } from "./conversation.service";
 
 const threadIdPlaceHolder = "thread-placeholder";
+const SESSION_THREAD_ID_KEY = "site-operator-thread-id";
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
     private _conversations: ConversationSummary[] = [];
@@ -39,13 +40,13 @@ export class ChatService extends EventTarget {
      * Inicializa el servicio de chat con las URLs necesarias y el nombre de la aplicación.
      * @param config Configuración de inicialización.
      */
-    initialize(config: { backendUrl: string, conversationUrl: string, appName: string, inspector?: boolean }) {
+    async initialize(config: { backendUrl: string, conversationUrl: string, appName: string, inspector?: boolean }) {
+        const storedThreadId = sessionStorage.getItem(SESSION_THREAD_ID_KEY);
         this.agent = new HttpAgent({
             url: config.backendUrl,
-            threadId: threadIdPlaceHolder,
+            threadId: storedThreadId || threadIdPlaceHolder,
         });
         conversationService.initialize(config.conversationUrl);
-
 
         this._appContext = {
             v: "1.1",
@@ -53,11 +54,39 @@ export class ChatService extends EventTarget {
                 name: config.appName,
                 locale: window.navigator.language || window.navigator.languages[0] || "en",
             },
-
         };
+
+        if (storedThreadId) {
+            await this.loadConversation(storedThreadId);
+        }
 
         inspectorService.setContext(this._appContext);
         inspectorService.setMessages(this.agent?.messages);
+    }
+
+    /**
+     * Carga una conversación existente por su ID.
+     * @param id ID de la conversación a cargar.
+     */
+    async loadConversation(id: string) {
+        try {
+            const conversation = await conversationService.getConversation(id);
+            if (this.agent) {
+                this.agent.threadId = conversation.id;
+                this.agent.messages = (conversation.messages || []) as UIMessage[];
+                sessionStorage.setItem(SESSION_THREAD_ID_KEY, conversation.id);
+            }
+            this.notify();
+        } catch (error) {
+            console.error("Failed to load conversation", error);
+            // Si falla la carga, volvemos al estado inicial
+            if (this.agent) {
+                this.agent.threadId = threadIdPlaceHolder;
+                this.agent.messages = [];
+                sessionStorage.removeItem(SESSION_THREAD_ID_KEY);
+            }
+            this.notify();
+        }
     }
 
     get conversations() {
@@ -183,6 +212,7 @@ export class ChatService extends EventTarget {
         if (this.agent?.threadId == threadIdPlaceHolder) {
             const conversation = await conversationService.createConversation({ messages: [{ id: generateId("message"), role: "developer", content: "Application context: " + JSON.stringify(this._appContext) }] });
             this.agent.threadId = conversation.id;
+            sessionStorage.setItem(SESSION_THREAD_ID_KEY, conversation.id);
             await this.sendMessage(JSON.stringify(`Application context: ${JSON.stringify(this._appContext)}`), "developer");
         }
     }
@@ -246,9 +276,9 @@ export class ChatService extends EventTarget {
     }
 
     async startNewThread() {
-
+        sessionStorage.removeItem(SESSION_THREAD_ID_KEY);
         if (this.agent) {
-            this.agent.threadId = "";
+            this.agent.threadId = threadIdPlaceHolder;
             this.agent.messages = [];
             this.agent.isRunning = false;
         }
