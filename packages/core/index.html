@@ -22,32 +22,58 @@
   <script type="module">
     import { chatPortalService } from './src/index.ts';
 
-    // 1. Register a Portal Specification
+    // 1. Register a Portal Specification (AppContext v1.1)
     chatPortalService.registerPortal({
-      graph: {
-        nodes: [
-          { id: 'home', description: 'The home page' },
-          { id: 'settings', description: 'User settings page' }
+      v: "1.1",
+      site: {
+        name: "Demo CRM",
+        description: "A demonstration portal for Site Operator",
+        deployment: "local-dev"
+      },
+      nav: {
+        routes: [
+          {
+            id: 'home',
+            path: '/',
+            title: 'Home Page',
+            description: 'The main dashboard of the application',
+            keywords: ['start', 'main', 'dashboard'],
+            uiComponents: ['Hero Section', 'Stats Grid'],
+            clickTargets: [
+              {
+                id: 'btn.settings',
+                name: 'GoToSettings',
+                label: 'Settings',
+                kind: 'link',
+                action: { type: 'navigate', toPath: '/settings' }
+              }
+            ]
+          },
+          {
+            id: 'settings',
+            path: '/settings',
+            title: 'User Settings',
+            description: 'Page to manage user preferences',
+            clickTargets: [
+              {
+                id: 'btn.save',
+                name: 'SaveSettings',
+                label: 'Save Changes',
+                kind: 'button',
+                action: { type: 'trigger', trigger: 'save_preferences' }
+              }
+            ]
+          }
         ],
-        edges: [
-          { from: 'home', to: 'settings', label: 'Go to settings' }
+        globalClickTargets: [
+          {
+            id: 'lnk.help',
+            name: 'OpenHelp',
+            label: 'Help',
+            kind: 'button',
+            action: { type: 'open', targetId: 'HelpDrawer' }
+          }
         ]
-      },
-      actions: {
-        navigate: async (args) => {
-          console.log('[Demo] Executing navigate action:', args);
-          return { success: true };
-        },
-        highlight: async (args) => {
-          console.log('[Demo] Highlighting element:', args);
-          return { success: true };
-        }
-      },
-      state: {
-        get: async () => ({
-          route: '/home',
-          pageId: 'home'
-        })
       }
     });
 

@@ -180,4 +180,77 @@ export const styles = css`
     background-position: center;
   }
 
+  .context-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .edit-button, .save-button, .cancel-button {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .edit-button {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    color: #374151;
+  }
+
+  .edit-button:hover {
+    background: #e5e7eb;
+  }
+
+  .save-button {
+    background: #6366f1;
+    border: 1px solid #4f46e5;
+    color: white;
+  }
+
+  .save-button:hover {
+    background: #4f46e5;
+  }
+
+  .cancel-button {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+  }
+
+  .cancel-button:hover {
+    background: #f9fafb;
+  }
+
+  .editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+  }
+
+  .context-editor {
+    flex: 1;
+    width: 100%;
+    min-height: 200px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+    resize: none;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
 `;

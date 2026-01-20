@@ -46,8 +46,7 @@ export class ChatMessage extends LitElement {
         ` : ''}
         
         <div class="content-wrapper">
-          <div class="bubble ${this.isStreaming ? 'streaming' : ''}">
-            ${this.message.isThinking
+          <div class="bubble ${this.isStreaming ? 'streaming' : ''}">${this.message.isThinking
         ? html`
                 <div class="typing-indicator">
                   <div class="typing-dot"></div>
@@ -55,8 +54,7 @@ export class ChatMessage extends LitElement {
                   <div class="typing-dot"></div>
                 </div>
               `
-        : this.message.content}
-          </div>
+        : this.message.content}</div>
 
           ${!isUser ? html`
              <div class="actions">

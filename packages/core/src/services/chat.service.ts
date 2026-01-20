@@ -205,15 +205,17 @@ export class ChatService extends EventTarget {
             this.notify();
         }
     }
+
     async _ensureConversation() {
         if (!this.agent) {
             throw new Error("Agent not initialized");
         }
         if (this.agent?.threadId == threadIdPlaceHolder) {
-            const conversation = await conversationService.createConversation({ messages: [{ id: generateId("message"), role: "developer", content: "Application context: " + JSON.stringify(this._appContext) }] });
+            const conversation = await conversationService.createConversation({
+                appContext: this._appContext || undefined
+            });
             this.agent.threadId = conversation.id;
             sessionStorage.setItem(SESSION_THREAD_ID_KEY, conversation.id);
-            await this.sendMessage(JSON.stringify(`Application context: ${JSON.stringify(this._appContext)}`), "developer");
         }
     }
 

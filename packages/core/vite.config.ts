@@ -9,8 +9,8 @@ export default defineConfig({
                 target: 'http://localhost:8001',
                 changeOrigin: true,
             },
-            '/api/v2/conversations': {
-                target: 'http://localhost:8003',
+            '/api/conversations': {
+                target: 'http://localhost:8001',
                 changeOrigin: true,
             }
         },

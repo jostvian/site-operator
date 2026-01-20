@@ -11,6 +11,8 @@ export class InspectorWindow extends LitElement {
   @state() private _context: any = null;
   @state() private _messages: any[] = [];
   @state() private _stream: any[] = [];
+  @state() private _isEditingContext = false;
+  @state() private _editedContext = "";
 
   private _isDragging = false;
   private _isResizing = false;
@@ -164,7 +166,28 @@ export class InspectorWindow extends LitElement {
   private _renderContent() {
     switch (this._activeTab) {
       case 'context':
-        return html`<pre>${JSON.stringify(this._context, null, 2)}</pre>`;
+        if (this._isEditingContext) {
+          return html`
+            <div class="editor-container">
+              <textarea 
+                class="context-editor" 
+                .value="${this._editedContext}"
+                @input="${(e: any) => this._editedContext = e.target.value}"
+              ></textarea>
+              <div class="editor-actions">
+                <button class="cancel-button" @click="${this._handleCancelEdit}">Cancel</button>
+                <button class="save-button" @click="${this._handleSaveContext}">Save Changes</button>
+              </div>
+            </div>
+          `;
+        }
+        return html`
+          <div class="context-header">
+            <span>Current Context & State</span>
+            <button class="edit-button" @click="${this._handleEditContext}">Edit</button>
+          </div>
+          <pre>${JSON.stringify(this._context, null, 2)}</pre>
+        `;
       case 'messages':
         return html`<pre>${JSON.stringify(this._messages, null, 2)}</pre>`;
       case 'stream':
@@ -187,6 +210,29 @@ export class InspectorWindow extends LitElement {
             ${this._stream.length === 0 ? html`<div style="color: #9ca3af; text-align: center; padding: 20px;">No events yet</div>` : ''}
           </div>
         `;
+    }
+  }
+
+  private _handleEditContext() {
+    this._editedContext = JSON.stringify(this._context, null, 2);
+    this._isEditingContext = true;
+  }
+
+  private _handleCancelEdit() {
+    this._isEditingContext = false;
+  }
+
+  private _handleSaveContext() {
+    try {
+      const parsed = JSON.parse(this._editedContext);
+      this.dispatchEvent(new CustomEvent('context-update', {
+        detail: parsed,
+        bubbles: true,
+        composed: true
+      }));
+      this._isEditingContext = false;
+    } catch (e) {
+      alert('Invalid JSON: ' + (e as Error).message);
     }
   }
 

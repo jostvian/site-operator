@@ -1,4 +1,5 @@
 import type { Conversation } from "../models/conversation.types";
+import type { AppContext } from "../models/portal.types";
 
 /**
  * Servicio para gestionar las conversaciones (threads) a través de un API externa.
@@ -7,17 +8,17 @@ export class ConversationService {
     private baseUrl: string;
 
     constructor() {
-        // La URL se resuelve en tiempo de compilación. Por defecto se usa http://localhost:8003
-        const apiUrl = import.meta.env.VITE_CONVERSATIONS_API_URL || 'http://localhost:8003';
-        this.baseUrl = `${apiUrl}/api/v2/conversations`;
+        // La URL se resuelve en tiempo de compilación. Por defecto se usa http://localhost:8001
+        const apiUrl = import.meta.env.VITE_CONVERSATIONS_API_URL || '';
+        this.baseUrl = `${apiUrl}/api/conversations`;
     }
 
     /**
      * Inicializa la URL base del servicio.
-     * @param apiUrl URL base del API de conversaciones (ej. http://localhost:8003)
+     * @param apiUrl URL base del API de conversaciones
      */
     initialize(apiUrl: string) {
-        this.baseUrl = `${apiUrl}/api/v2/conversations`;
+        this.baseUrl = `${apiUrl}/api/conversations`;
     }
 
     /**
@@ -47,13 +48,13 @@ export class ConversationService {
 
     /**
      * Crea una nueva conversación.
-     * @param conversation Datos de la conversación a crear.
+     * @param data Datos de la conversación a crear (incluyendo opcionalmente el appContext).
      * @returns Promesa con la conversación creada
      */
-    async createConversation(conversation: Partial<Conversation>): Promise<Conversation> {
+    async createConversation(data: Partial<Conversation> & { appContext?: AppContext }): Promise<Conversation> {
         const payload = {
-            ...conversation,
-            title: conversation.title || "Nueva conversación"
+            ...data,
+            title: data.title || "Nueva conversación"
         };
 
         const response = await fetch(this.baseUrl, {

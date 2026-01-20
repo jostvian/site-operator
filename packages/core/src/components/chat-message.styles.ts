@@ -10,6 +10,7 @@ export const styles = css`
     display: flex;
     gap: 0.75rem;
     max-width: 100%;
+    align-items: flex-end;
   }
 
   :host([role="user"]) .message-container {
@@ -38,7 +39,6 @@ export const styles = css`
     height: 2rem;
     border-radius: 9999px;
     object-fit: cover;
-    margin-right: 0.75rem;
     flex-shrink: 0;
   }
 
