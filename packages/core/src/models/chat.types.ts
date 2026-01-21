@@ -57,6 +57,7 @@ export interface AgentState {
 
 export interface InspectorEvent {
     event: string;
-    content: any;
+    content: unknown;
+
     time: string;
 }

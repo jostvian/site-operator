@@ -24,10 +24,11 @@ export default defineConfig({
             fileName: (format) => `site-operator.${format}.js`
         },
         rollupOptions: {
-            external: ['@ag-ui/client'],
+            external: ['@ag-ui/client', '@a2ui/lit'],
             output: {
                 globals: {
-                    '@ag-ui/client': 'AgUiClient'
+                    '@ag-ui/client': 'AgUiClient',
+                    '@a2ui/lit': 'A2UILit'
                 }
             }
         }

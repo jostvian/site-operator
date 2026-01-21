@@ -37,9 +37,10 @@ export class ChatService extends EventTarget {
         this.subscriber = new ChatSubscriber(this);
 
         // Listen for context registration from other parts of the app
-        chatPortalService.addEventListener('portal-registered', (e: any) => {
-            console.log('ChatService: Portal context detected', e.detail);
-            this.setAppContext(e.detail);
+        chatPortalService.addEventListener('portal-registered', (e: Event) => {
+            const detail = (e as CustomEvent<AppContext>).detail;
+            console.log('ChatService: Portal context detected', detail);
+            this.setAppContext(detail);
         });
     }
 

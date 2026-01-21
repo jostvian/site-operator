@@ -136,8 +136,9 @@ export type ClickAction =
     | {
         /** Generic action type for extension */
         type: string;
-        [k: string]: any;
+        [k: string]: unknown;
     };
+
 
 /**
  * Result of executing a navigation or interaction plan.
@@ -146,8 +147,9 @@ export interface ExecutePlanResult {
     /** Status of the execution */
     status: "ok" | "error";
     /** Optional details about the execution or error message */
-    details?: any;
+    details?: unknown;
 }
+
 
 /**
  * Core interface for the Chat Portal API.

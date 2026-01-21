@@ -20,10 +20,13 @@ import type {
     CustomEvent as AgCustomEvent,
     RunErrorEvent,
     BaseEvent
+
 } from "@ag-ui/client";
 import { ChatService } from "./chat.service";
 import { inspectorService } from "./inspector.service";
 import { chatPortalService } from "./chat-portal.service";
+import type { UIMessage } from "../models/chat.types.js";
+
 
 export class ChatSubscriber implements AgentSubscriber {
     private service: ChatService;
@@ -62,14 +65,14 @@ export class ChatSubscriber implements AgentSubscriber {
         this.service.prepareMessageForStreaming(params.event.messageId);
     }
 
-    onTextMessageContentEvent(params: { event: TextMessageContentEvent } & AgentSubscriberParams) {
+    onTextMessageContentEvent(params: { event: TextMessageContentEvent, textMessageBuffer: string } & AgentSubscriberParams) {
         inspectorService.addEvent('onTextMessageContentEvent', params.event);
         // Add chunk
         // The event has 'delta' prop for the new content chunk
-        // @ts-ignore - The type definition might be slightly off in local vs package, ensuring we use delta
-        const content = (params.event as any).delta || (params.event as any).content || "";
+        const content = params.event.delta || "";
         this.service.appendMessageContent(params.event.messageId, content);
     }
+
 
     onTextMessageEndEvent(params: { event: TextMessageEndEvent } & AgentSubscriberParams) {
         inspectorService.addEvent('onTextMessageEndEvent', params.event);
@@ -77,28 +80,12 @@ export class ChatSubscriber implements AgentSubscriber {
 
     onMessagesSnapshotEvent(params: { event: MessagesSnapshotEvent } & AgentSubscriberParams) {
         inspectorService.addEvent('onMessagesSnapshotEvent', params.event);
-        // Sync full state, mapping to our local Message type
-        const messages = params.event.messages.map(msg => {
-            let content = "";
-            if (typeof msg.content === 'string') {
-                content = msg.content;
-            } else if (Array.isArray(msg.content)) {
-                content = msg.content
-                    .filter((c: any) => c.type === 'text')
-                    .map((c: any) => c.text)
-                    .join('');
-            } else {
-                content = JSON.stringify(msg.content);
-            }
 
-            return {
-                id: msg.id,
-                role: msg.role as any, // Cast role if compatible, or valid "user" | "assistant"
-                content: content,
-                createdAt: Date.now(), // Fallback for now as ag-ui messages might not have this
-                // We might want to preserve isThinking if we support it from snapshot, but for now defaulting is fine
-            };
-        });
+        // Sync full state, mapping to our local Message type
+        const messages: UIMessage[] = params.event.messages.map(msg => ({
+            ...msg,
+            createdAt: (msg as any).createdAt || Date.now(),
+        }));
         this.service.setMessages(messages);
     }
 
@@ -148,7 +135,8 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onCustomEvent', params.event);
     }
 
-    async onClientToolCall(params: { event: any, toolName: string, args: any } & AgentSubscriberParams) {
+    async onClientToolCall(params: { event: AgCustomEvent, toolName: string, args: Record<string, any> } & AgentSubscriberParams) {
+
         inspectorService.addEvent('onClientToolCall', params.event);
         if (params.toolName === 'executePlan') {
             console.log('ChatSubscriber: Received executePlan client tool call', params.args);

@@ -1,4 +1,5 @@
-import type { ChatPortalAPI, AppContext } from "../models/portal.types";
+import type { ChatPortalAPI, AppContext, ExecutePlanResult } from "../models/portal.types.js";
+
 
 export class ChatPortalService extends EventTarget implements ChatPortalAPI {
     private _context: AppContext | null = null;
@@ -21,7 +22,8 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
         this.dispatchEvent(new CustomEvent('portal-registered', { detail: context }));
     }
 
-    async executePlan(plan: any): Promise<{ status: "ok" | "error"; details?: any }> {
+    async executePlan(plan: unknown): Promise<ExecutePlanResult> {
+
         if (!this._context) {
             console.warn('No portal registered. Cannot execute plan.');
             return { status: "error", details: "No portal registered" };
@@ -39,7 +41,8 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
     /**
      * @deprecated Use context instead
      */
-    public get specs(): any {
+    public get specs(): AppContext | null {
+
         return this._context;
     }
 }

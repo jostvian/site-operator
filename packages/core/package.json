@@ -65,7 +65,6 @@
     "@ag-ui/client": "^0.0.42"
   },
   "devDependencies": {
-    "@a2ui/lit": "^0.8.1",
     "@ag-ui/client": "^0.0.42",
     "lit": "^3.3.1",
     "typescript": "~5.9.3",
@@ -75,5 +74,8 @@
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.5"
+  },
+  "dependencies": {
+    "@a2ui/lit": "^0.8.1"
   }
 }
