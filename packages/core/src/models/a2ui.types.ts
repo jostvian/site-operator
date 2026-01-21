@@ -25,6 +25,10 @@ export interface JSONSchema {
     enum?: any[];
     /** Default value for the property */
     default?: any;
+    /** Schema for array items */
+    items?: JSONSchema | JSONSchema[];
+    /** Regular expression pattern for strings */
+    pattern?: string;
 }
 
 /**
