@@ -11,7 +11,7 @@ import { conversationService } from "./conversation.service";
 import { chatPortalService } from "./chat-portal.service";
 
 const threadIdPlaceHolder = "thread-placeholder";
-const SESSION_THREAD_ID_KEY = "site-operator-thread-id";
+const STORAGE_THREAD_ID_KEY = "site-operator-thread-id";
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
     private _conversations: ConversationSummary[] = [];
@@ -50,7 +50,7 @@ export class ChatService extends EventTarget {
      * @param config Configuración de inicialización.
      */
     async initialize(config: { backendUrl: string, conversationUrl: string, appName: string, inspector?: boolean }) {
-        const storedThreadId = sessionStorage.getItem(SESSION_THREAD_ID_KEY);
+        const storedThreadId = localStorage.getItem(STORAGE_THREAD_ID_KEY);
         this.agent = new HttpAgent({
             url: config.backendUrl,
             threadId: storedThreadId || threadIdPlaceHolder,
@@ -89,7 +89,7 @@ export class ChatService extends EventTarget {
             if (this.agent) {
                 this.agent.threadId = conversation.id;
                 this.agent.messages = (conversation.messages || []) as UIMessage[];
-                sessionStorage.setItem(SESSION_THREAD_ID_KEY, conversation.id);
+                localStorage.setItem(STORAGE_THREAD_ID_KEY, conversation.id);
             }
             this.notify();
         } catch (error) {
@@ -98,7 +98,7 @@ export class ChatService extends EventTarget {
             if (this.agent) {
                 this.agent.threadId = threadIdPlaceHolder;
                 this.agent.messages = [];
-                sessionStorage.removeItem(SESSION_THREAD_ID_KEY);
+                localStorage.removeItem(STORAGE_THREAD_ID_KEY);
             }
             this.notify();
         }
@@ -226,7 +226,7 @@ export class ChatService extends EventTarget {
                 appContext: this._appContext || undefined
             });
             this.agent.threadId = conversation.id;
-            sessionStorage.setItem(SESSION_THREAD_ID_KEY, conversation.id);
+            localStorage.setItem(STORAGE_THREAD_ID_KEY, conversation.id);
         }
     }
 
@@ -333,7 +333,7 @@ export class ChatService extends EventTarget {
     }
 
     async startNewThread() {
-        sessionStorage.removeItem(SESSION_THREAD_ID_KEY);
+        localStorage.removeItem(STORAGE_THREAD_ID_KEY);
         if (this.agent) {
             this.agent.threadId = threadIdPlaceHolder;
             this.agent.messages = [];
