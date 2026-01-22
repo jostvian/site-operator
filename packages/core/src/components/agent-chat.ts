@@ -38,6 +38,14 @@ export class AgentChat extends LitElement {
     @state() private _inspectorEnabled = false;
 
     willUpdate(changedProperties: Map<string, any>) {
+
+        if (changedProperties.has('interceptor')) {
+            if (this.interceptor) {
+                this.enableFetchInterceptor();
+            } else {
+                fetchInterceptorService.destroy();
+            }
+        }
         if (changedProperties.has('backendUrl')
             || changedProperties.has('appName')
             || changedProperties.has('conversationUrl')) {
@@ -50,13 +58,6 @@ export class AgentChat extends LitElement {
             this._inspectorEnabled = this.hasAttribute('inspector') || (this as any).inspector;
         }
 
-        if (changedProperties.has('interceptor')) {
-            if (this.interceptor) {
-                this.enableFetchInterceptor();
-            } else {
-                fetchInterceptorService.destroy();
-            }
-        }
     }
 
     /**
