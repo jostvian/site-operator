@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { AgentChat as AgentChatElement, type AppState, type AppContext } from 'site-operator';
 import 'site-operator';
 
@@ -37,7 +37,7 @@ export interface AgentChatProps {
   context?: ContextProps;
 }
 
-export const AgentChat: React.FC<AgentChatProps> = ({
+export const AgentChat = React.forwardRef<AgentChatElement, AgentChatProps>(({
   backendUrl,
   conversationUrl,
   appName,
@@ -49,8 +49,10 @@ export const AgentChat: React.FC<AgentChatProps> = ({
   thread,
   header,
   context
-}) => {
+}, forwardedRef) => {
   const ref = useRef<AgentChatElement>(null);
+
+  useImperativeHandle(forwardedRef, () => ref.current as AgentChatElement );
 
   useEffect(() => {
     if (ref.current && context?.appContext) {
@@ -82,4 +84,6 @@ export const AgentChat: React.FC<AgentChatProps> = ({
       class={className}
     />
   );
-};
+});
+
+AgentChat.displayName = 'AgentChat';

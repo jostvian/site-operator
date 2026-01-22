@@ -10,6 +10,14 @@ This package is framework-agnostic and built with Lit.
 npm install site-operator
 ```
 
+## Development
+
+```bash
+npm run dev
+npm run build
+npm run preview
+```
+
 ## Chat Portal API
 
 The Chat Portal API is the bridge that allows the AI Agent to understand and interact with your application. It consists of two main parts:
@@ -111,5 +119,4 @@ chatService.setAppState(currentState);
   chat.setAppContext(myAppContext);
 </script>
 ```
-
 

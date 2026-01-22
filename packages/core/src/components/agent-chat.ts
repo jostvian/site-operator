@@ -22,6 +22,16 @@ export class AgentChat extends LitElement {
     static styles = styles;
 
     private _chatController = new ChatController(this);
+
+    public get controller() {
+        return this._chatController;
+    }
+
+    protected firstUpdated() {
+        this.dispatchEvent(new CustomEvent('controller-ready', {
+            detail: this._chatController
+        }));
+    }
     @property({ type: String, attribute: 'backend-url' }) backendUrl = '/ag_ui';
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
     @property({ type: String, attribute: 'conversation-url' }) conversationUrl = '';
@@ -184,5 +194,9 @@ export class AgentChat extends LitElement {
 declare global {
     interface HTMLElementTagNameMap {
         'agent-chat': AgentChat;
+    }
+
+    interface HTMLElementEventMap {
+        'controller-ready': CustomEvent<ChatController>;
     }
 }

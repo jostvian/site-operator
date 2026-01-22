@@ -8,6 +8,8 @@ npm install site-operator-react
 
 ```tsx
 import { AgentChat, type AppContext, type AppState } from 'site-operator-react';
+import type { AgentChat as AgentChatElement } from 'site-operator';
+import { useRef } from 'react';
 
 const context: AppContext = {
   v: "1.1",
@@ -67,9 +69,12 @@ const state: AppState = {
 };
 
 function App() {
+  const chatRef = useRef<AgentChatElement>(null);
+
   return (
     <div className="App">
       <AgentChat
+        ref={chatRef}
         backendUrl="http://localhost:8001/ag_ui"
         appName="My React App"
         context={{ appContext: context, appState: state }}
@@ -82,10 +87,12 @@ function App() {
 
 ### useChatPortal Hook
 
-The `useChatPortal` hook allows you to register the "Copilot" capabilities (`AppContext`) for your application. This lets the agent understand the app structure and available targets.
+The `useChatPortal` hook allows you to register the "Copilot" capabilities (`AppContext`) for your application. This lets the agent understand the app structure and available targets. It can also return the live `ChatController` from `AgentChat` when you pass a `chatRef`.
 
 ```tsx
 import { useChatPortal, type AppContext } from 'site-operator-react';
+import type { AgentChat as AgentChatElement } from 'site-operator';
+import { useRef } from 'react';
 
 const context: AppContext = {
   v: "1.1",
@@ -98,11 +105,17 @@ const context: AppContext = {
 };
 
 function App() {
-  useChatPortal(context);
+  const chatRef = useRef<AgentChatElement>(null);
+  const controller = useChatPortal(context, { chatRef });
 
   return (
-    // ...
+    <AgentChat ref={chatRef} context={{ appContext: context }} />
   );
 }
-```
 
+// How chatRef works:
+// - pass it to <AgentChat /> so React forwards it to the web component
+// - useChatPortal listens for the "controller-ready" event
+// - once ready, it returns the live ChatController instance
+// controller?.sendMessage('Hola');
+```

@@ -2,6 +2,7 @@ import './components/agent-chat';
 
 
 export * from './components/agent-chat';
+export * from './hooks';
 export * from './services/chat-portal.service';
 export * from './services/conversation.service';
 export * from './services/fetch-interceptor.service';
