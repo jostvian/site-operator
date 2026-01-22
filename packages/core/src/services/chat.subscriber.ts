@@ -26,6 +26,7 @@ import { ChatService } from "./chat.service";
 import { inspectorService } from "./inspector.service";
 import { chatPortalService } from "./chat-portal.service";
 import type { UIMessage } from "../models/chat.types.js";
+import { a2uiService } from "./a2ui.service.js";
 
 
 export class ChatSubscriber implements AgentSubscriber {
@@ -125,10 +126,16 @@ export class ChatSubscriber implements AgentSubscriber {
 
     onActivitySnapshotEvent(params: { event: ActivitySnapshotEvent } & AgentSubscriberParams) {
         inspectorService.addEvent('onActivitySnapshotEvent', params.event);
+        // a2uiService.processSnapshot(params.event);
+        if (params.event.activityType == "a2ui" && params.event.content.surfaceUpdate)
+            this.service.addA2UIMessage(params.event);
+        else if (params.event.activityType == "a2ui" && params.event.content.beginRendering)
+            a2uiService.processMessages([params.event.content] as any)
     }
 
     onActivityDeltaEvent(params: { event: ActivityDeltaEvent } & AgentSubscriberParams) {
         inspectorService.addEvent('onActivityDeltaEvent', params.event);
+        // Delta processing is not supported by the current processor
     }
 
     onCustomEvent(params: { event: AgCustomEvent } & AgentSubscriberParams) {

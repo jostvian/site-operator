@@ -43,7 +43,7 @@ export class ChatThread extends LitElement {
     return html`
       <div class="messages-list">
         ${this.messages
-        .filter(msg => msg.role === 'assistant' || msg.role === 'user')
+        .filter(msg => msg.role === 'assistant' || msg.role === 'user' || msg.role === 'activity')
         .map((msg, index, filteredArr) => html`
           <agent-chat-message 
             .message=${msg} 

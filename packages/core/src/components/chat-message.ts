@@ -5,6 +5,8 @@ import type { UIMessage } from '../models/chat.types';
 import './ui/icon-button';
 import { CopyIcon, ReloadIcon } from '../icons';
 
+import { a2uiService } from '../services/a2ui.service';
+
 @customElement('agent-chat-message')
 export class ChatMessage extends LitElement {
   static styles = styles;
@@ -35,6 +37,34 @@ export class ChatMessage extends LitElement {
 
   render() {
     const isUser = this.message.role === 'user';
+    const hasToolCalls = this.message.role === 'assistant'
+      && Array.isArray(this.message.toolCalls)
+      && this.message.toolCalls.length > 0;
+
+    if (hasToolCalls) {
+      a2uiService.processMessages([this.message]);
+      const surfaces = Array.from(a2uiService.processor.getSurfaces().entries());
+      const processor = a2uiService.processor; // Use shared processor
+
+      if (surfaces.length > 0) {
+        return html`
+          <div class="message-container activity">
+            <div class="content-wrapper">
+              ${surfaces.map(([surfaceId, surface]) => {
+            return html`
+                  <a2ui-theme-provider
+                    .surfaceId="${surfaceId}"
+                    .processor="${processor}"
+                    .surface="${surface}"
+                    .enableCustomElements="${true}"
+                  ></a2ui-theme-provider>
+                `;
+          })}
+            </div>
+          </div>
+        `;
+      }
+    }
 
     return html`
       <div class="message-container">

@@ -1,6 +1,7 @@
 import { HttpAgent, type Message } from "@ag-ui/client";
 import type { ConversationSummary, AppState, UIMessage } from "../models/chat.types.js";
 import type { AppContext } from "../models/portal.types";
+import type { ActivitySnapshotEvent } from "@ag-ui/client";
 
 
 import { generateId } from "../utils/id-generator";
@@ -281,9 +282,53 @@ export class ChatService extends EventTarget {
         if (!this.agent) {
             throw new Error("Agent not initialized");
         }
-        // Map external messages to our Message type if needed, or assume compatibility
-        // Assuming strict compatibility for now
-        this.agent.messages = messages as UIMessage[];
+
+        // Preserve existing activity messages that are not in the incoming set
+        const existingActivities = this.agent.messages.filter(m => m.role === ('activity' as any));
+        const incomingIds = new Set(messages.map(m => m.id));
+        const missingActivities = existingActivities.filter(m => !incomingIds.has(m.id));
+
+        console.log("ChatService: setMessages - Preserving activities", missingActivities.length);
+
+        // Map external messages to our Message type
+        this.agent.messages = [...(messages as UIMessage[]), ...missingActivities];
+
+        // Sort by createdAt to maintain some order (though activities might not have it from server)
+        this.agent.messages.sort((a, b) => ((a as any).createdAt || 0) - ((b as any).createdAt || 0));
+
+        this.notify();
+    }
+
+    addA2UIMessage(event: ActivitySnapshotEvent) {
+        if (!this.agent) {
+            throw new Error("Agent not initialized");
+        }
+
+        // Handle case where content might be a string
+        let content = event.content;
+        if (typeof content === 'string') {
+            try {
+                content = JSON.parse(content);
+            } catch (e) {
+                console.error("ChatService: Failed to parse activity content string", e);
+            }
+        }
+
+
+
+        const activityMsg: UIMessage = {
+            id: event.messageId,
+            role: 'activity',
+            activityType: event.activityType,
+            content: event.content,
+            createdAt: Date.now()
+        };
+
+
+        // Remove existing message with same ID if any (to handle updates/snapshots)
+        const messages = this.agent.messages.filter(m => m.id !== event.messageId);
+        this.agent.messages = [...messages, activityMsg];
+
         this.notify();
     }
 

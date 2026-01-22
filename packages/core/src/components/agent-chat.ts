@@ -4,6 +4,8 @@ import { styles } from './agent-chat.styles';
 import './chat-header';
 import './chat-thread';
 import './chat-composer';
+import '@a2ui/lit/ui';
+import './a2ui-theme-provider';
 import type { AppContext } from "../models/portal.types.js";
 import type { AppState } from "../models/chat.types.js";
 

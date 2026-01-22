@@ -1,16 +1,421 @@
 import { v0_8 } from '@a2ui/lit';
+import type { ActivitySnapshotEvent } from "@ag-ui/client";
+import type { UIMessage } from '../models/chat.types';
 
 /**
  * Service to manage A2UI message processing and surface updates.
  */
 export class A2UIService {
-    private processor: v0_8.Types.MessageProcessor = v0_8.Data.createSignalA2uiMessageProcessor();
+    public processor: v0_8.Types.MessageProcessor = v0_8.Data.createSignalA2uiMessageProcessor();
 
     /**
      * Initializes the A2UI service.
      */
     constructor() {
         // Initialize with empty messages to clear surfaces
-        this.processor.processMessages([]);
+        
+    }
+
+    private mapMessage(message: UIMessage): v0_8.Types.ServerToClientMessage[] {
+        if (message.role !== 'assistant' || !message.toolCalls) {
+            throw new Error("Unsupported message type for A2UI processing");
+        }
+
+        const mappedMessages: v0_8.Types.ServerToClientMessage[] = [];
+
+        for (const toolCall of message.toolCalls) {
+            if (toolCall.type !== 'function' || !toolCall.function) {
+                continue;
+            }
+
+            const toolName = toolCall.function.name;
+            const args = this.parseToolArguments(toolCall.function.arguments, toolName);
+            if (!args) {
+                continue;
+            }
+
+            if (toolName === 'a2ui_begin_rendering') {
+                const beginRendering = this.mapBeginRendering(args);
+                if (beginRendering) {
+                    mappedMessages.push({ beginRendering });
+                }
+                continue;
+            }
+
+            if (toolName === 'a2ui_update_surface') {
+                const surfaceUpdate = this.mapSurfaceUpdate(args);
+                if (surfaceUpdate) {
+                    mappedMessages.push({ surfaceUpdate });
+                }
+                continue;
+            }
+
+            if (toolName === 'a2ui_update_data_model') {
+                const dataModelUpdate = this.mapDataModelUpdate(args);
+                if (dataModelUpdate) {
+                    mappedMessages.push({ dataModelUpdate });
+                }
+                continue;
+            }
+
+            if (toolName === 'a2ui_delete_surface') {
+                const deleteSurface = this.mapDeleteSurface(args);
+                if (deleteSurface) {
+                    mappedMessages.push({ deleteSurface });
+                }
+                continue;
+            }
+        }
+
+        return mappedMessages;
+    }
+
+    private parseToolArguments(rawArgs: unknown, toolName: string): Record<string, unknown> | null {
+        if (rawArgs == null) {
+            console.warn(`A2UIService: Missing arguments for ${toolName}`);
+            return null;
+        }
+
+        if (typeof rawArgs === "string") {
+            const trimmedArgs = rawArgs.trim();
+            if (trimmedArgs === "") {
+                return {};
+            }
+            try {
+                return JSON.parse(trimmedArgs) as Record<string, unknown>;
+            } catch (error) {
+                console.warn(`A2UIService: Failed to parse arguments for ${toolName}`, error);
+                return null;
+            }
+        }
+
+        if (typeof rawArgs === "object") {
+            return rawArgs as Record<string, unknown>;
+        }
+
+        console.warn(`A2UIService: Unsupported arguments type for ${toolName}`);
+        return null;
+    }
+
+    private mapBeginRendering(args: Record<string, unknown>): v0_8.Types.BeginRenderingMessage | null {
+        const surfaceId = this.getSurfaceId(args);
+        const root = this.getRootComponentId(args);
+
+        if (!surfaceId || !root) {
+            console.warn("A2UIService: Missing surfaceId or root for begin rendering");
+            return null;
+        }
+
+        const styles = (typeof args.styles === "object" && args.styles) ? (args.styles as Record<string, string>) : undefined;
+        return styles ? { surfaceId, root, styles } : { surfaceId, root };
+    }
+
+    private mapSurfaceUpdate(args: Record<string, unknown>): v0_8.Types.SurfaceUpdateMessage | null {
+        const surfaceId = this.getSurfaceId(args);
+
+        if (!surfaceId) {
+            console.warn("A2UIService: Missing surfaceId for surface update");
+            return null;
+        }
+
+        const components = Array.isArray(args.components) ? args.components : [];
+        return {
+            surfaceId,
+            components: components as v0_8.Types.ComponentInstance[]
+        };
+    }
+
+    private mapDataModelUpdate(args: Record<string, unknown>): v0_8.Types.DataModelUpdate | null {
+        const surfaceId = this.getSurfaceId(args);
+
+        if (!surfaceId) {
+            console.warn("A2UIService: Missing surfaceId for data model update");
+            return null;
+        }
+
+        const contents = this.normalizeValueMapArray(args.contents);
+        const dataModelUpdate: v0_8.Types.DataModelUpdate = {
+            surfaceId,
+            contents
+        };
+
+        if (typeof args.path === "string") {
+            dataModelUpdate.path = args.path;
+        }
+
+        return dataModelUpdate;
+    }
+
+    private normalizeDataModelUpdate(update: v0_8.Types.DataModelUpdate): v0_8.Types.DataModelUpdate {
+        const normalized: v0_8.Types.DataModelUpdate = {
+            surfaceId: update.surfaceId,
+            contents: this.normalizeValueMapArray(update.contents)
+        };
+
+        if (typeof update.path === "string") {
+            normalized.path = update.path;
+        }
+
+        return normalized;
+    }
+
+    private mapDeleteSurface(args: Record<string, unknown>): v0_8.Types.DeleteSurfaceMessage | null {
+        const surfaceId = this.getSurfaceId(args);
+
+        if (!surfaceId) {
+            console.warn("A2UIService: Missing surfaceId for delete surface");
+            return null;
+        }
+
+        return { surfaceId };
+    }
+
+    private getSurfaceId(args: Record<string, unknown>): string | null {
+        const surfaceId = args.surfaceId ?? args.surface_id;
+
+        if (typeof surfaceId === "string" && surfaceId.trim()) {
+            return surfaceId;
+        }
+
+        if (typeof surfaceId === "number") {
+            return String(surfaceId);
+        }
+
+        return null;
+    }
+
+    private getRootComponentId(args: Record<string, unknown>): string | null {
+        const root =
+            args.root ??
+            args.rootComponentId ??
+            args.root_component ??
+            args.root_component_id;
+
+        if (typeof root === "string" && root.trim()) {
+            return root;
+        }
+
+        if (typeof root === "number") {
+            return String(root);
+        }
+
+        return null;
+    }
+
+    private normalizeValueMapArray(contents: unknown): v0_8.Types.ValueMap[] {
+        if (!Array.isArray(contents)) {
+            return [];
+        }
+
+        return contents
+            .filter((entry) => entry && typeof entry === "object" && "key" in entry)
+            .map((entry) => this.normalizeValueMapEntry(entry as Record<string, unknown>));
+    }
+
+    private normalizeValueMapEntry(entry: Record<string, unknown>): v0_8.Types.ValueMap {
+        const normalized: Record<string, unknown> = { ...entry };
+
+        if ("value_string" in entry) {
+            normalized.valueString = entry["value_string"];
+        }
+        if ("valueString" in entry) {
+            normalized.valueString = entry["valueString"];
+        }
+        if ("value_number" in entry) {
+            normalized.valueNumber = entry["value_number"];
+        }
+        if ("valueNumber" in entry) {
+            normalized.valueNumber = entry["valueNumber"];
+        }
+        if ("value_boolean" in entry) {
+            normalized.valueBoolean = entry["value_boolean"];
+        }
+        if ("valueBoolean" in entry) {
+            normalized.valueBoolean = entry["valueBoolean"];
+        }
+
+        const valueMap = entry["valueMap"] ?? entry["value_map"];
+        if (valueMap !== undefined) {
+            normalized.valueMap = this.normalizeValueMapArray(valueMap);
+        }
+
+        delete normalized["value_string"];
+        delete normalized["value_number"];
+        delete normalized["value_boolean"];
+        delete normalized["value_map"];
+
+        if (typeof normalized.key !== "string") {
+            normalized.key = String(normalized.key ?? "");
+        }
+
+        return normalized as v0_8.Types.ValueMap;
+    }
+
+    private isServerToClientMessage(message: unknown): message is v0_8.Types.ServerToClientMessage {
+        if (!message || typeof message !== "object") {
+            return false;
+        }
+
+        const candidate = message as Record<string, unknown>;
+        return (
+            "beginRendering" in candidate ||
+            "begin_rendering" in candidate ||
+            "surfaceUpdate" in candidate ||
+            "surface_update" in candidate ||
+            "dataModelUpdate" in candidate ||
+            "data_model_update" in candidate ||
+            "deleteSurface" in candidate ||
+            "delete_surface" in candidate
+        );
+    }
+
+    private normalizeServerMessage(message: v0_8.Types.ServerToClientMessage | Record<string, unknown>): v0_8.Types.ServerToClientMessage {
+        const messageRecord = message as Record<string, unknown>;
+        if ("beginRendering" in messageRecord || "surfaceUpdate" in messageRecord || "dataModelUpdate" in messageRecord || "deleteSurface" in messageRecord) {
+            const existing = message as v0_8.Types.ServerToClientMessage;
+            if (existing.dataModelUpdate) {
+                return { ...existing, dataModelUpdate: this.normalizeDataModelUpdate(existing.dataModelUpdate) };
+            }
+            return existing;
+        }
+
+        const normalized: v0_8.Types.ServerToClientMessage = {};
+
+        const beginRenderingArgs = messageRecord["begin_rendering"];
+        if (beginRenderingArgs && typeof beginRenderingArgs === "object") {
+            const beginRendering = this.mapBeginRendering(beginRenderingArgs as Record<string, unknown>);
+            if (beginRendering) {
+                normalized.beginRendering = beginRendering;
+            }
+        }
+
+        const surfaceUpdateArgs = messageRecord["surface_update"];
+        if (surfaceUpdateArgs && typeof surfaceUpdateArgs === "object") {
+            const surfaceUpdate = this.mapSurfaceUpdate(surfaceUpdateArgs as Record<string, unknown>);
+            if (surfaceUpdate) {
+                normalized.surfaceUpdate = surfaceUpdate;
+            }
+        }
+
+        const dataModelUpdateArgs = messageRecord["data_model_update"];
+        if (dataModelUpdateArgs && typeof dataModelUpdateArgs === "object") {
+            const dataModelUpdate = this.mapDataModelUpdate(dataModelUpdateArgs as Record<string, unknown>);
+            if (dataModelUpdate) {
+                normalized.dataModelUpdate = dataModelUpdate;
+            }
+        }
+
+        const deleteSurfaceArgs = messageRecord["delete_surface"];
+        if (deleteSurfaceArgs && typeof deleteSurfaceArgs === "object") {
+            const deleteSurface = this.mapDeleteSurface(deleteSurfaceArgs as Record<string, unknown>);
+            if (deleteSurface) {
+                normalized.deleteSurface = deleteSurface;
+            }
+        }
+
+        return normalized;
+    }
+
+    processMessages(messages: UIMessage[]) {
+        const mappedMessages: v0_8.Types.ServerToClientMessage[] = [];
+
+        for (const message of messages) {
+            if (this.isServerToClientMessage(message)) {
+                mappedMessages.push(this.normalizeServerMessage(message));
+                continue;
+            }
+
+            if (message.role === 'assistant' && message.toolCalls) {
+                mappedMessages.push(...this.mapMessage(message));
+            }
+        }
+
+        if (mappedMessages.length === 0) {
+            return;
+        }
+
+        return this.processor.processMessages(mappedMessages);
+    }
+
+    processMessage(message: UIMessage) {
+        this.processMessages([message]);
+    }
+
+    /**
+     * Processes an activity snapshot event.
+     * @param event The activity snapshot event.
+     */
+    processSnapshot(event: ActivitySnapshotEvent) {
+        if (event.activityType === 'a2ui' && event.content) {
+            const content = event.content;
+            const rawMessages = Array.isArray(content) ? content : [content];
+            const surfaceIds = this.getSurfaceIdsFromEvent(event);
+
+            // If it's a replace/snapshot, we should clear the state for these surfaces first
+            // to ensure we don't have leftover components from previous snapshots.
+            const prefixMessages = (event.replace !== false) ?
+                surfaceIds.map(id => ({ deleteSurface: { surfaceId: id } })) : [];
+
+            // Auto-fix: If we have a surfaceUpdate but no corresponding root in the processor,
+            // or if the agent sent a new root id in components but didn't update beginRendering.
+            const messages = rawMessages.map(m => {
+                if (m.surfaceUpdate || m.surface_update) {
+                    const update = m.surfaceUpdate || m.surface_update;
+                    const surfaceId = update.surfaceId || update.surface_id;
+                    const components = update.components || [];
+
+                    if (surfaceId && components.length > 0) {
+                        const surface = this.processor.getSurfaces().get(surfaceId);
+                        const currentRootId = surface?.rootComponentId;
+
+                        // Check if current rootId exists in the NEW components
+                        const rootExists = components.some((c: any) => c.id === currentRootId);
+
+                        if (!rootExists || !currentRootId) {
+                            // Find a likely root: first component or one not referenced elsewhere (impl. first for simplicity)
+                            const likelyRootId = components[0].id;
+                            console.warn(`A2UIService: Auto-fixing root mismatch for surface ${surfaceId}. Mapeando root a ${likelyRootId}`);
+
+                            // Return BOTH a beginRendering to fix the root and the original update
+                            return [
+                                { beginRendering: { surfaceId, root: likelyRootId } },
+                                m
+                            ];
+                        }
+                    }
+                }
+                return m;
+            }).flat();
+
+            const finalMessages = [...prefixMessages, ...messages];
+            console.log("A2UIService: Processing messages (fixed)", finalMessages);
+            this.processor.processMessages(finalMessages as any[]);
+
+            // Post-process log
+            const surfaces = Array.from(this.processor.getSurfaces().entries());
+            console.log("A2UIService: Estado del procesador tras procesado:", surfaces.map(([id, s]) => ({
+                id,
+                root: s.rootComponentId,
+                components: s.components.size,
+                hasTree: !!s.componentTree
+            })));
+        }
+    }
+
+    getSurfaceIdsFromEvent(event: ActivitySnapshotEvent): string[] {
+        if (event.activityType !== 'a2ui' || !event.content) return [];
+        const content = event.content;
+        const messages = Array.isArray(content) ? content : [content];
+        const ids = new Set<string>();
+
+        messages.forEach(m => {
+            const payload = m.beginRendering || m.begin_rendering || m.surfaceUpdate || m.surface_update || m.deleteSurface || m.delete_surface;
+            const sid = payload?.surfaceId || payload?.surface_id;
+            if (sid) ids.add(sid);
+        });
+
+        return Array.from(ids);
     }
 }
+
+export const a2uiService = new A2UIService();
