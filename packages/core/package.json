@@ -1,7 +1,7 @@
 {
   "name": "site-operator",
   "private": false,
-  "version": "0.2.1",
+  "version": "0.2.4",
   "description": "A framework-agnostic AI chat widget that acts as a copilot for host applications.",
   "type": "module",
   "author": "jostvian",
@@ -86,6 +86,5 @@
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.5"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

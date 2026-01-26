@@ -66,9 +66,10 @@ export class ChatController implements ReactiveController {
     /**
      * Envía un mensaje a través del servicio.
      * @param content Contenido del mensaje.
+     * @param role Rol del mensaje (opcional, por defecto 'user').
      */
-    sendMessage(content: string) {
-        return chatService.sendMessage(content);
+    sendMessage(content: string, role: Parameters<typeof chatService.sendMessage>[1] = 'user') {
+        return chatService.sendMessage(content, role);
     }
 
     /**

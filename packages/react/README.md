@@ -119,3 +119,43 @@ function App() {
 // - once ready, it returns the live ChatController instance
 // controller?.sendMessage('Hola');
 ```
+
+### AgentChatProvider + AgentChatMount + useAgentChatController
+
+If you prefer a React Context approach, wrap your app (or a subtree) with `AgentChatProvider`. It manages the `ref` and exposes the `ChatController` via `useAgentChatController`. Place `<AgentChatMount />` where you want the chat UI to render.
+
+```tsx
+import { AgentChatProvider, AgentChatMount, useAgentChatController, type AppContext } from 'site-operator-react';
+
+const context: AppContext = {
+  v: "1.1",
+  site: { name: "Mi Portal" },
+  user: { id: "u-123" },
+  nav: { routes: [] }
+};
+
+function ChatActions() {
+  const controller = useAgentChatController();
+  return (
+    <button onClick={() => controller?.startNewThread()}>
+      Nuevo chat
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <AgentChatProvider
+      backendUrl="http://localhost:8001/ag_ui"
+      appName="My React App"
+      context={{ appContext: context }}
+    >
+      <header>Mi App</header>
+      <main>
+        <AgentChatMount className="chat-root" />
+      </main>
+      <ChatActions />
+    </AgentChatProvider>
+  );
+}
+```

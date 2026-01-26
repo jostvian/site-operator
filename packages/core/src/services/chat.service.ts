@@ -12,6 +12,7 @@ import { chatPortalService } from "./chat-portal.service";
 
 const threadIdPlaceHolder = "thread-placeholder";
 const STORAGE_THREAD_ID_KEY = "site-operator-thread-id";
+const DEFAUILT_AG_UI_URI = '/ag_ui';
 export class ChatService extends EventTarget {
     private agent?: HttpAgent;
     private _conversations: ConversationSummary[] = [];
@@ -51,11 +52,12 @@ export class ChatService extends EventTarget {
      */
     async initialize(config: { backendUrl: string, conversationUrl: string, appName: string, inspector?: boolean }) {
         const storedThreadId = localStorage.getItem(STORAGE_THREAD_ID_KEY);
+
         this.agent = new HttpAgent({
-            url: config.backendUrl,
+            url: `${config.backendUrl}${DEFAUILT_AG_UI_URI}`,
             threadId: storedThreadId || threadIdPlaceHolder,
         });
-        conversationService.initialize(config.conversationUrl);
+        conversationService.initialize(config.backendUrl);
 
         // Prioritize already registered portal context if available
         if (chatPortalService.context) {

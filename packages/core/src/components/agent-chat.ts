@@ -32,7 +32,17 @@ export class AgentChat extends LitElement {
             detail: this._chatController
         }));
     }
-    @property({ type: String, attribute: 'backend-url' }) backendUrl = '/ag_ui';
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.addEventListener('a2uiaction', this._handleA2UIAction as EventListener);
+    }
+
+    disconnectedCallback() {
+        this.removeEventListener('a2uiaction', this._handleA2UIAction as EventListener);
+        super.disconnectedCallback();
+    }
+    @property({ type: String, attribute: 'backend-url' }) backendUrl = '';
     @property({ type: String, attribute: 'app-name' }) appName = 'Lit-Chat-App';
     @property({ type: String, attribute: 'conversation-url' }) conversationUrl = '';
     @property({ type: String, attribute: 'agent-avatar' }) agentAvatar = '';
@@ -184,6 +194,90 @@ export class AgentChat extends LitElement {
 
     private _handleContextUpdate(e: CustomEvent) {
         this.setAppContext(e.detail);
+    }
+
+    private _handleA2UIAction(e: CustomEvent) {
+        const { action } = e.detail;
+        if (!action) return;
+
+        console.log('AgentChat: A2UI Action received:', action);
+
+        // Handler específico para decisiones de autenticación/consentimiento
+        if (action.name === 'decision') {
+            this._handleAuthDecision(action);
+            return;
+        }
+
+        // Handler genérico para URLs
+        this._handleGenericUrlAction(action);
+    }
+
+    /**
+     * Maneja acciones de tipo 'decision' (Aprobar/Denegar).
+     * Si es 'approve', abre una URL y espera a que se cierre la pestaña antes de notificar.
+     * Si es 'deny', notifica inmediatamente.
+     */
+    private _handleAuthDecision(action: any) {
+        const context = action.context || [];
+        const decision = context.find((p: any) => p.key === 'userDecision')?.value?.literalString;
+        const url = context.find((p: any) => ['url', 'href', 'link', 'uri'].includes(p.key?.toLowerCase()))?.value?.literalString;
+
+        console.log(`AgentChat: Specialized decision handler: ${decision}`, action);
+
+        if (decision === 'deny') {
+            console.log('AgentChat: User denied the request.');
+            this._chatController.sendMessage(
+                `User selected "Deny" for action "${action.name}".`,
+                'tool'
+            );
+            return;
+        }
+
+        if (decision === 'approve') {
+            if (url) {
+                console.log(`AgentChat: User selected "Approve". Opening auth URL: ${url}`);
+                const win = window.open(url, '_blank');
+
+                if (win) {
+                    const checkClosed = setInterval(() => {
+                        if (win.closed) {
+                            clearInterval(checkClosed);
+                            console.log('AgentChat: Auth tab closed. Notifying approval.');
+                            this._chatController.sendMessage(
+                                `User approved the request "${action.name}" and completed authentication.`,
+                                'tool'
+                            );
+                        }
+                    }, 1000);
+                } else {
+                    console.error('AgentChat: Failed to open auth tab.');
+                }
+            } else {
+                // Si no hay URL, simplemente notificamos la aprobación
+                console.log('AgentChat: User approved (no URL provided).');
+                this._chatController.sendMessage(
+                    `User selected "Approve" for action "${action.name}".`,
+                    'tool'
+                );
+            }
+        }
+    }
+
+    /**
+     * Handler genérico para cualquier acción que contenga una URL.
+     */
+    private _handleGenericUrlAction(action: any) {
+        const urlParam = action.context?.find((p: any) =>
+            ['url', 'href', 'link', 'uri'].includes(p.key?.toLowerCase())
+        );
+        const url = urlParam?.value?.literalString || urlParam?.value?.path;
+
+        if (url) {
+            console.log(`AgentChat: Opening generic URL: ${url}`);
+            window.open(url, '_blank');
+        } else {
+            console.warn('AgentChat: A2UI Action received without recognizable purpose:', action);
+        }
     }
 
     private _handleStateUpdate(e: CustomEvent) {
