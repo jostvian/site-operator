@@ -121,6 +121,16 @@ export class ChatSubscriber implements AgentSubscriber {
             });
             console.log('ChatSubscriber: navigate_user result', result);
         }
+
+        if (params.toolCallName === 'click_element') {
+            console.log('ChatSubscriber: Received click_element tool call', params.toolCallArgs);
+            const result = await chatPortalService.executePlan({
+                type: 'click',
+                targetId: params.toolCallArgs.target_id,
+                reason: params.toolCallArgs.reason
+            });
+            console.log('ChatSubscriber: click_element result', result);
+        }
     }
 
     onToolCallResultEvent(params: { event: ToolCallResultEvent } & AgentSubscriberParams) {
@@ -143,6 +153,8 @@ export class ChatSubscriber implements AgentSubscriber {
         else if (params.event.activityType == "a2ui" && params.event.content.beginRendering)
             a2uiService.processMessages([params.event.content] as any)
         else if (params.event.activityType == "navigation")
+            chatPortalService.executePlan(params.event.content as Action);
+        else if (params.event.activityType == "click")
             chatPortalService.executePlan(params.event.content as Action);
     }
 

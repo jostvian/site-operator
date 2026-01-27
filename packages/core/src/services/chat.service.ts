@@ -130,6 +130,9 @@ export class ChatService extends EventTarget {
     setAppState(state: AppState) {
         this._appState = state;
         inspectorService.setState(this._appState);
+        if (state.ui?.visibleClickTargetIds) {
+            chatPortalService.setVisibleTargets(state.ui.visibleClickTargetIds);
+        }
         this.notify();
     }
 
@@ -149,6 +152,9 @@ export class ChatService extends EventTarget {
 
     setAppUI(ui: AppState["ui"]) {
         this._appState.ui = ui;
+        if (ui?.visibleClickTargetIds) {
+            chatPortalService.setVisibleTargets(ui.visibleClickTargetIds);
+        }
         this.notify();
     }
 

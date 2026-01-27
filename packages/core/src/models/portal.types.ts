@@ -146,6 +146,14 @@ export type Action =
         trigger: string;
     }
     | {
+        /** Clicks on a specific element by ID */
+        type: "click";
+        /** Identifier for the target UI element to click or interact with */
+        targetId: string;
+        /** Optional reason for the click */
+        reason?: string;
+    }
+    | {
         /** Generic action type for extension */
         type: string;
         [k: string]: unknown;
