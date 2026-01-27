@@ -1,5 +1,5 @@
 import { HttpAgent, type Message } from "@ag-ui/client";
-import type { ConversationSummary, AppState, UIMessage } from "../models/chat.types.js";
+import type { ConversationSummary, AppState, UIMessage, SuggestedPrompt } from "../models/chat.types.js";
 import type { AppContext } from "../models/portal.types";
 import type { ActivitySnapshotEvent } from "@ag-ui/client";
 
@@ -22,6 +22,8 @@ export class ChatService extends EventTarget {
         location: { path: "" },
         ui: { visibleClickTargetIds: [] }
     };
+    private _suggestedPrompts: SuggestedPrompt[] = [];
+    private _showPrompts: boolean = false;
 
     get isRunning() {
         return this.agent?.isRunning || false;
@@ -29,6 +31,14 @@ export class ChatService extends EventTarget {
 
     get messages() {
         return this.agent?.messages || [];
+    }
+
+    get suggestedPrompts() {
+        return this._suggestedPrompts;
+    }
+
+    get showPrompts() {
+        return this._showPrompts;
     }
 
 
@@ -163,6 +173,27 @@ export class ChatService extends EventTarget {
         this.notify();
     }
 
+    /**
+     * Establece los prompts sugeridos que se mostrarán al usuario.
+     * @param prompts Lista de prompts sugeridos. El caption tiene un máximo de 50 caracteres.
+     */
+    setSuggestedPrompts(prompts: SuggestedPrompt[]) {
+        this._suggestedPrompts = prompts.map(p => ({
+            ...p,
+            caption: p.caption.slice(0, 50)
+        }));
+        this._showPrompts = true;
+        this.notify();
+    }
+
+    /**
+     * Oculta la lista de prompts sugeridos.
+     */
+    hideSuggestedPrompts() {
+        this._showPrompts = false;
+        this.notify();
+    }
+
 
     async sendMessage(content: string, role: "developer" | "user" | "assistant" | "system" | "tool" | "activity" = "user") {
         if (!this.agent) {
@@ -221,6 +252,7 @@ export class ChatService extends EventTarget {
             console.error("Failed to send message", error);
             // Add error message to thread?
         } finally {
+            this._showPrompts = false;
             this.notify();
         }
     }
@@ -346,6 +378,10 @@ export class ChatService extends EventTarget {
             this.agent.threadId = threadIdPlaceHolder;
             this.agent.messages = [];
             this.agent.isRunning = false;
+        }
+
+        if (this._suggestedPrompts.length > 0) {
+            this._showPrompts = true;
         }
 
         this.notify();

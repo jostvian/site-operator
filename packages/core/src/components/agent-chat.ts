@@ -7,7 +7,7 @@ import './chat-composer';
 import '@a2ui/lit/ui';
 import './a2ui-theme-provider';
 import type { AppContext } from "../models/portal.types.js";
-import type { AppState } from "../models/chat.types.js";
+import type { AppState, SuggestedPrompt } from "../models/chat.types.js";
 
 import './chat-history-list';
 
@@ -128,6 +128,13 @@ export class AgentChat extends LitElement {
         this._chatController.setAppFocus(focus);
     }
 
+    /**
+     * Establece los prompts sugeridos que se mostrarán al usuario.
+     * @param prompts Lista de prompts sugeridos.
+     */
+    public setSuggestedPrompts(prompts: SuggestedPrompt[]) {
+        this._chatController.setSuggestedPrompts(prompts);
+    }
 
 
     private _toggleHistory() {
@@ -172,6 +179,7 @@ export class AgentChat extends LitElement {
             ?isRunning="${this._chatController.isRunning}" 
             .disclaimer="${this.disclaimer}"
             .placeholder="${this.placeholder}"
+            .prompts="${this._chatController.showPrompts ? this._chatController.suggestedPrompts : []}"
             @send="${this._handleSend}">
         </agent-chat-composer>
 

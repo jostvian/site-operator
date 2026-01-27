@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { styles } from './chat-composer.styles';
 import { SendIcon, StopIcon } from '../icons';
+import type { SuggestedPrompt } from '../models/chat.types';
 
 @customElement('agent-chat-composer')
 export class ChatComposer extends LitElement {
@@ -10,6 +11,7 @@ export class ChatComposer extends LitElement {
     @property({ type: Boolean }) isRunning = false;
     @property({ type: String }) disclaimer = '';
     @property({ type: String }) placeholder = '';
+    @property({ type: Array }) prompts: SuggestedPrompt[] = [];
 
     @state() private _value = '';
     @query('textarea') private _textarea!: HTMLTextAreaElement;
@@ -33,6 +35,12 @@ export class ChatComposer extends LitElement {
         this._textarea.style.height = `${Math.min(this._textarea.scrollHeight, 160)}px`; // Grow up to max
     }
 
+    private _handlePromptClick(prompt: SuggestedPrompt) {
+        this._value = prompt.message;
+        this._textarea.focus();
+        setTimeout(() => this._adjustHeight(), 0);
+    }
+
     async _handleSubmit() {
         if (!this._value.trim()) return;
 
@@ -48,6 +56,15 @@ export class ChatComposer extends LitElement {
 
     render() {
         return html`
+      ${this.prompts.length > 0 ? html`
+        <div class="prompts-list">
+          ${this.prompts.map(prompt => html`
+            <button class="prompt-item" @click="${() => this._handlePromptClick(prompt)}">
+              ${prompt.caption}
+            </button>
+          `)}
+        </div>
+      ` : ''}
       <div class="composer-container">
         <textarea
             placeholder="${this.placeholder}"

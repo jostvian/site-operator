@@ -85,4 +85,37 @@ export const styles = css`
       font-size: 0.75rem;
       padding: 0.5rem;
   }
+
+  .prompts-list {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.75rem;
+    padding: 0 0.5rem;
+  }
+
+  .prompt-item {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 0.625rem 0.5rem;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--agent-text-zinc-600, #52525b);
+    transition: all 0.2s ease;
+    border-radius: 0.375rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .prompt-item:last-child {
+    border-bottom: none;
+  }
+
+  .prompt-item:hover {
+    background-color: var(--agent-bg-zinc-50, #fafafa);
+    color: var(--agent-text-foreground, #09090b);
+    padding-left: 0.75rem;
+  }
 `;

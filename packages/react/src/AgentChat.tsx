@@ -1,11 +1,12 @@
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
-import { AgentChat as AgentChatElement, type AppState, type AppContext } from 'site-operator';
+import { AgentChat as AgentChatElement, type AppState, type AppContext, type SuggestedPrompt } from 'site-operator';
 import 'site-operator';
 
 
 export interface ComposerProps {
   disclaimer?: string;
   placeholder?: string;
+  suggestedPrompts?: SuggestedPrompt[];
 }
 
 export interface ThreadViewProps {
@@ -52,7 +53,7 @@ export const AgentChat = React.forwardRef<AgentChatElement, AgentChatProps>(({
 }, forwardedRef) => {
   const ref = useRef<AgentChatElement>(null);
 
-  useImperativeHandle(forwardedRef, () => ref.current as AgentChatElement );
+  useImperativeHandle(forwardedRef, () => ref.current as AgentChatElement);
 
   useEffect(() => {
     if (ref.current && context?.appContext) {
@@ -65,6 +66,12 @@ export const AgentChat = React.forwardRef<AgentChatElement, AgentChatProps>(({
       ref.current.setAppState(context.appState);
     }
   }, [context?.appState]);
+
+  useEffect(() => {
+    if (ref.current && composer?.suggestedPrompts) {
+      ref.current.setSuggestedPrompts(composer.suggestedPrompts);
+    }
+  }, [composer?.suggestedPrompts]);
 
 
   return (

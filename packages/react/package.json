@@ -1,6 +1,6 @@
 {
   "name": "site-operator-react",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "description": "React wrapper for site-operator, providing AgentChat component and hooks.",
   "type": "module",
   "author": "jostvian",
@@ -32,7 +32,7 @@
     "dev": "vite build --watch"
   },
   "dependencies": {
-    "site-operator": "^0.2.4"
+    "site-operator": "^0.2.6"
   },
   "peerDependencies": {
     "react": "^19.0.0",

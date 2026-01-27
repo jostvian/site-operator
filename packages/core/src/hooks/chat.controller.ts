@@ -1,6 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { chatService } from '../services/chat.service';
-import type { AppState } from '../models/chat.types';
+import type { AppState, SuggestedPrompt } from '../models/chat.types';
 import type { AppContext } from '../models/portal.types';
 
 
@@ -64,6 +64,20 @@ export class ChatController implements ReactiveController {
     }
 
     /**
+     * Retorna los prompts sugeridos.
+     */
+    get suggestedPrompts() {
+        return chatService.suggestedPrompts;
+    }
+
+    /**
+     * Indica si se deben mostrar los prompts.
+     */
+    get showPrompts() {
+        return chatService.showPrompts;
+    }
+
+    /**
      * Envía un mensaje a través del servicio.
      * @param content Contenido del mensaje.
      * @param role Rol del mensaje (opcional, por defecto 'user').
@@ -113,6 +127,21 @@ export class ChatController implements ReactiveController {
 
     setAppFocus(focus: AppState["focus"]) {
         return chatService.setAppFocus(focus);
+    }
+
+    /**
+     * Establece los prompts sugeridos.
+     * @param prompts Lista de prompts.
+     */
+    setSuggestedPrompts(prompts: SuggestedPrompt[]) {
+        return chatService.setSuggestedPrompts(prompts);
+    }
+
+    /**
+     * Oculta los prompts sugeridos.
+     */
+    hideSuggestedPrompts() {
+        return chatService.hideSuggestedPrompts();
     }
 
 

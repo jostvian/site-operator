@@ -7,11 +7,17 @@ export type UIMessage = Message & {
     createdAt?: number;
 };
 
+export interface SuggestedPrompt {
+    caption: string;
+    message: string;
+}
+
 export interface ChatThread {
     id: string;
     messages: UIMessage[];
     isRunning: boolean;
     title?: string;
+    suggestedPrompts?: SuggestedPrompt[];
 }
 export interface ConversationSummary {
     id: string;
