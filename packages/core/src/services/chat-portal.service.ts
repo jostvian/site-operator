@@ -1,11 +1,11 @@
-import type { ChatPortalAPI, AppContext, ExecutePlanResult } from "../models/portal.types.js";
+import type { ChatPortalAPI, AppContext, ExecutePlanResult, ClickAction } from "../models/portal.types.js";
 
 
 export class ChatPortalService extends EventTarget implements ChatPortalAPI {
     private _context: AppContext | null = null;
     private static _instance: ChatPortalService;
 
-    private _executePlanHandler: ((plan: any) => Promise<ExecutePlanResult>) | null = null;
+    private _executePlanHandler: ((plan: ClickAction) => Promise<ExecutePlanResult>) | null = null;
 
     private constructor() {
         super();
@@ -18,7 +18,7 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
         return ChatPortalService._instance;
     }
 
-    registerPortal(context: AppContext, handlers?: { executePlan?: (plan: any) => Promise<ExecutePlanResult> }): void {
+    registerPortal(context: AppContext, handlers?: { executePlan?: (plan: ClickAction) => Promise<ExecutePlanResult> }): void {
         console.log('Registering app context', context);
         this._context = context;
         if (handlers?.executePlan) {
@@ -27,7 +27,7 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
         this.dispatchEvent(new CustomEvent('portal-registered', { detail: context }));
     }
 
-    async executePlan(plan: any): Promise<ExecutePlanResult> {
+    async executePlan(plan: ClickAction): Promise<ExecutePlanResult> {
 
         if (this._executePlanHandler) {
             return this._executePlanHandler(plan);

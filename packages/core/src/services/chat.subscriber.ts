@@ -107,7 +107,7 @@ export class ChatSubscriber implements AgentSubscriber {
 
         if (params.toolCallName === 'executePlan') {
             console.log('ChatSubscriber: Received executePlan tool call', params.toolCallArgs);
-            const result = await chatPortalService.executePlan(params.toolCallArgs);
+            const result = await chatPortalService.executePlan(params.toolCallArgs as any);
             console.log('ChatSubscriber: executePlan result', result);
         }
 
@@ -142,7 +142,7 @@ export class ChatSubscriber implements AgentSubscriber {
         else if (params.event.activityType == "a2ui" && params.event.content.beginRendering)
             a2uiService.processMessages([params.event.content] as any)
         else if (params.event.activityType == "navigation")
-            chatPortalService.executePlan(params.event.content);
+            chatPortalService.executePlan(params.event.content as any);
     }
 
     onActivityDeltaEvent(params: { event: ActivityDeltaEvent } & AgentSubscriberParams) {
@@ -159,7 +159,7 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onClientToolCall', params.event);
         if (params.toolName === 'executePlan') {
             console.log('ChatSubscriber: Received executePlan client tool call', params.args);
-            await chatPortalService.executePlan(params.args);
+            await chatPortalService.executePlan(params.args as any);
         }
     }
 

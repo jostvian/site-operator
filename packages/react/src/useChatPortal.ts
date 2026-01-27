@@ -1,5 +1,5 @@
 import { useEffect, useState, type RefObject } from 'react';
-import { chatPortalService, type AppContext, type ChatController, type AgentChat } from 'site-operator';
+import { chatPortalService, type AppContext, type ChatController, type AgentChat, type ClickAction, type ExecutePlanResult } from 'site-operator';
 
 export type UseChatPortalOptions = {
     chatRef?: RefObject<AgentChat | null>;
@@ -15,7 +15,7 @@ export type UseChatPortalOptions = {
  */
 export function useChatPortal(
     context: AppContext | null | undefined,
-    options?: UseChatPortalOptions & { handlers?: { executePlan?: (plan: any) => Promise<any> } }
+    options?: UseChatPortalOptions & { handlers?: { executePlan?: (plan: ClickAction) => Promise<ExecutePlanResult> } }
 ): ChatController | null {
     const [controller, setController] = useState<ChatController | null>(null);
 

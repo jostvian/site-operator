@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { AgentChat as AgentChatElement, ChatController } from 'site-operator';
+import type { AgentChat as AgentChatElement, ChatController, ClickAction, ExecutePlanResult } from 'site-operator';
 import { AgentChat, type AgentChatProps } from './AgentChat';
 import { useChatPortal } from './useChatPortal';
 
@@ -35,7 +35,7 @@ export const AgentChatMount: React.FC<AgentChatMountProps> = ({ children, ...pro
 export type AgentChatProviderProps = AgentChatProps & {
   children?: React.ReactNode;
   handlers?: {
-    executePlan?: (plan: any) => Promise<any>;
+    executePlan?: (plan: ClickAction) => Promise<ExecutePlanResult>;
   };
 };
 
