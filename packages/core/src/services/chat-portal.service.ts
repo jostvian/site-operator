@@ -5,6 +5,8 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
     private _context: AppContext | null = null;
     private static _instance: ChatPortalService;
 
+    private _executePlanHandler: ((plan: any) => Promise<ExecutePlanResult>) | null = null;
+
     private constructor() {
         super();
     }
@@ -16,13 +18,20 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
         return ChatPortalService._instance;
     }
 
-    registerPortal(context: AppContext): void {
+    registerPortal(context: AppContext, handlers?: { executePlan?: (plan: any) => Promise<ExecutePlanResult> }): void {
         console.log('Registering app context', context);
         this._context = context;
+        if (handlers?.executePlan) {
+            this._executePlanHandler = handlers.executePlan;
+        }
         this.dispatchEvent(new CustomEvent('portal-registered', { detail: context }));
     }
 
-    async executePlan(plan: unknown): Promise<ExecutePlanResult> {
+    async executePlan(plan: any): Promise<ExecutePlanResult> {
+
+        if (this._executePlanHandler) {
+            return this._executePlanHandler(plan);
+        }
 
         if (!this._context) {
             console.warn('No portal registered. Cannot execute plan.');

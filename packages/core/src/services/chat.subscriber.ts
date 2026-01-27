@@ -110,6 +110,16 @@ export class ChatSubscriber implements AgentSubscriber {
             const result = await chatPortalService.executePlan(params.toolCallArgs);
             console.log('ChatSubscriber: executePlan result', result);
         }
+
+        if (params.toolCallName === 'navigate_user') {
+            console.log('ChatSubscriber: Received navigate_user tool call', params.toolCallArgs);
+            const result = await chatPortalService.executePlan({
+                type: 'navigate',
+                toPath: params.toolCallArgs.path,
+                reason: params.toolCallArgs.reason
+            });
+            console.log('ChatSubscriber: navigate_user result', result);
+        }
     }
 
     onToolCallResultEvent(params: { event: ToolCallResultEvent } & AgentSubscriberParams) {
@@ -131,6 +141,8 @@ export class ChatSubscriber implements AgentSubscriber {
             this.service.addA2UIMessage(params.event);
         else if (params.event.activityType == "a2ui" && params.event.content.beginRendering)
             a2uiService.processMessages([params.event.content] as any)
+        else if (params.event.activityType == "navigation")
+            chatPortalService.executePlan(params.event.content);
     }
 
     onActivityDeltaEvent(params: { event: ActivityDeltaEvent } & AgentSubscriberParams) {

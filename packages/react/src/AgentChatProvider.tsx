@@ -34,15 +34,19 @@ export const AgentChatMount: React.FC<AgentChatMountProps> = ({ children, ...pro
 
 export type AgentChatProviderProps = AgentChatProps & {
   children?: React.ReactNode;
+  handlers?: {
+    executePlan?: (plan: any) => Promise<any>;
+  };
 };
 
 export const AgentChatProvider: React.FC<AgentChatProviderProps> = ({
   children,
   context,
+  handlers,
   ...props
 }) => {
   const chatRef = useRef<AgentChatElement>(null);
-  const controller = useChatPortal(context?.appContext, { chatRef });
+  const controller = useChatPortal(context?.appContext, { chatRef, handlers });
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
 
   return (
