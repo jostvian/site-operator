@@ -280,8 +280,17 @@ export class ChatService extends EventTarget {
             createdAt: Date.now(),
             isThinking: true
         };
-        this.agent.messages = [...this.agent.messages, placeholder];
+        this.agent.messages = [...(this.agent.messages || []), placeholder];
         this.notify();
+    }
+
+    cleanupThinkingPlaceholder() {
+        if (!this.agent) return;
+        const filtered = this.agent.messages.filter(m => m.id !== "thinking-placeholder");
+        if (filtered.length !== this.agent.messages.length) {
+            this.agent.messages = filtered;
+            this.notify();
+        }
     }
 
     prepareMessageForStreaming(newId: string) {
@@ -384,6 +393,15 @@ export class ChatService extends EventTarget {
         }
 
         this.notify();
+    }
+
+    /**
+     * Obtiene el listado de conversaciones desde el servidor.
+     * @returns Promesa con el listado de conversaciones.
+     */
+    async getConversations(): Promise<ConversationSummary[]> {
+        await this.refreshConversations();
+        return this._conversations;
     }
 
     /**
