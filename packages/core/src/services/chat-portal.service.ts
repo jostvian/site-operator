@@ -34,10 +34,21 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
     }
 
     async executePlan(plan: Action): Promise<ExecutePlanResult> {
+        if (plan.type === 'plan') {
+            const steps = (plan as any).steps as Action[];
+            console.log(`ChatPortalService: Executing multi-step plan with ${steps.length} steps.`);
+            for (const step of steps) {
+                const result = await this.executePlan(step);
+                if (result.status === 'error') {
+                    return result;
+                }
+            }
+            return { status: "ok" };
+        }
 
-        if (plan.type === 'click') {
+        if (plan.type === 'click' || plan.type === 'setValue') {
             const targetId = (plan as any).targetId;
-            console.log(`ChatPortalService: Waiting for click target "${targetId}"...`);
+            console.log(`ChatPortalService: Waiting for target "${targetId}" for action "${plan.type}"...`);
             const found = await this._waitForTarget(targetId);
             if (!found) {
                 return { status: "error", details: `Target "${targetId}" not found or not visible after timeout.` };
@@ -54,7 +65,6 @@ export class ChatPortalService extends EventTarget implements ChatPortalAPI {
         }
 
         console.log('Executing plan (simplified):', plan);
-        // TODO: Implement execution logic based on ClickTarget actions
         return { status: "ok" };
     }
 

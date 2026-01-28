@@ -131,6 +131,23 @@ export class ChatSubscriber implements AgentSubscriber {
             });
             console.log('ChatSubscriber: click_element result', result);
         }
+
+        if (params.toolCallName === 'set_value') {
+            console.log('ChatSubscriber: Received set_value tool call', params.toolCallArgs);
+            const result = await chatPortalService.executePlan({
+                type: 'setValue',
+                targetId: params.toolCallArgs.target_id,
+                value: params.toolCallArgs.value,
+                reason: params.toolCallArgs.reason
+            });
+            console.log('ChatSubscriber: set_value result', result);
+        }
+
+        if (params.toolCallName === 'execute_ui_plan' || params.toolCallName === 'executePlan') {
+            console.log('ChatSubscriber: Received UI plan tool call', params.toolCallArgs);
+            const result = await chatPortalService.executePlan(params.toolCallArgs as Action);
+            console.log('ChatSubscriber: UI plan result', result);
+        }
     }
 
     onToolCallResultEvent(params: { event: ToolCallResultEvent } & AgentSubscriberParams) {
@@ -152,9 +169,7 @@ export class ChatSubscriber implements AgentSubscriber {
             this.service.addA2UIMessage(params.event);
         else if (params.event.activityType == "a2ui" && params.event.content.beginRendering)
             a2uiService.processMessages([params.event.content] as any)
-        else if (params.event.activityType == "navigation")
-            chatPortalService.executePlan(params.event.content as Action);
-        else if (params.event.activityType == "click")
+        else if (["navigation", "click", "setValue", "plan"].includes(params.event.activityType))
             chatPortalService.executePlan(params.event.content as Action);
     }
 

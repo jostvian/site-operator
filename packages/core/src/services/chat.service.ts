@@ -238,7 +238,6 @@ export class ChatService extends EventTarget {
             this.agent.addMessage(userMsg as Message);
 
             this.agent.state = {
-                appContext: this._appContext,
                 appState: this._appState
             };
 

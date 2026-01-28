@@ -154,6 +154,24 @@ export type Action =
         reason?: string;
     }
     | {
+        /** Sets a value to an input element (e.g., text, number) */
+        type: "setValue";
+        /** Identifier for the target input element */
+        targetId: string;
+        /** The value to set (string or number) */
+        value: string | number;
+        /** Optional reason for setting the value */
+        reason?: string;
+    }
+    | {
+        /** Sequence of actions to be performed in order */
+        type: "plan";
+        /** Ordered list of actions to execute */
+        steps: Action[];
+        /** Description of the plan's overall goal */
+        goal?: string;
+    }
+    | {
         /** Generic action type for extension */
         type: string;
         [k: string]: unknown;
