@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { styles } from './chat-thread.styles';
 import type { UIMessage } from '../models/chat.types';
 import './chat-message';
+import { a2uiService } from '../services/a2ui.service';
 
 @customElement('agent-chat-thread')
 export class ChatThread extends LitElement {
@@ -17,6 +18,7 @@ export class ChatThread extends LitElement {
 
   updated(changedProperties: Map<string, any>) {
     if (changedProperties.has('messages')) {
+      a2uiService.processMessages(this.messages);
       this.scrollToBottom();
     }
   }
@@ -43,7 +45,13 @@ export class ChatThread extends LitElement {
     return html`
       <div class="messages-list">
         ${this.messages
-        .filter(msg => msg.role === 'assistant' || msg.role === 'user' || msg.role === 'activity')
+        .filter(msg => {
+          if (msg.role === 'assistant' || msg.role === 'user') return true;
+          if (a2uiService.isA2UIMessage(msg)) {
+            return !a2uiService.isBeginRenderingOnly(msg);
+          }
+          return false;
+        })
         .map((msg, index, filteredArr) => html`
           <agent-chat-message 
             .message=${msg} 

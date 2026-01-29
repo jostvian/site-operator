@@ -37,11 +37,9 @@ export class ChatMessage extends LitElement {
 
   render() {
     const isUser = this.message.role === 'user';
-    const hasToolCalls = this.message.role === 'assistant'
-      && Array.isArray(this.message.toolCalls)
-      && this.message.toolCalls.length > 0;
+    const isA2UI = a2uiService.isA2UIMessage(this.message);
 
-    if (hasToolCalls) {
+    if (isA2UI) {
       a2uiService.processMessages([this.message]);
       const surfaces = Array.from(a2uiService.processor.getSurfaces().entries());
       const processor = a2uiService.processor; // Use shared processor
@@ -49,6 +47,10 @@ export class ChatMessage extends LitElement {
       if (surfaces.length > 0) {
         return html`
           <div class="message-container activity">
+            ${this.agentAvatar
+            ? html`<img src="${this.agentAvatar}" class="avatar-img" alt="AI">`
+            : html`<div class="avatar">C</div>`
+          }
             <div class="content-wrapper">
               ${surfaces.map(([surfaceId, surface]) => {
             return html`

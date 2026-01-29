@@ -13,7 +13,7 @@ export class A2UIService {
      */
     constructor() {
         // Initialize with empty messages to clear surfaces
-        
+
     }
 
     private mapMessage(message: UIMessage): v0_8.Types.ServerToClientMessage[] {
@@ -257,6 +257,12 @@ export class A2UIService {
         }
 
         const candidate = message as Record<string, unknown>;
+        const content = candidate.content as Record<string, unknown> | undefined;
+        const hasA2UIPayload = content !== null && typeof content === 'object' && (
+            "beginRendering" in content ||
+            "surfaceUpdate" in content
+        );
+
         return (
             "beginRendering" in candidate ||
             "begin_rendering" in candidate ||
@@ -265,7 +271,8 @@ export class A2UIService {
             "dataModelUpdate" in candidate ||
             "data_model_update" in candidate ||
             "deleteSurface" in candidate ||
-            "delete_surface" in candidate
+            "delete_surface" in candidate ||
+            hasA2UIPayload
         );
     }
 
@@ -320,8 +327,50 @@ export class A2UIService {
         const mappedMessages: v0_8.Types.ServerToClientMessage[] = [];
 
         for (const message of messages) {
+            // Check if message itself is an A2UI message
             if (this.isServerToClientMessage(message)) {
                 mappedMessages.push(this.normalizeServerMessage(message));
+                continue;
+            }
+
+            // Check if it's a tool message with JSON content
+            if (message.role === 'tool' && typeof message.content === 'string') {
+                try {
+                    const parsed = JSON.parse(message.content);
+                    if (parsed.role === 'activity' && parsed.activity_type === 'a2ui' && parsed.content) {
+                        const content = parsed.content;
+                        if (this.isServerToClientMessage(content)) {
+                            mappedMessages.push(this.normalizeServerMessage(content));
+                        } else {
+                            const items = Array.isArray(content) ? content : [content];
+                            for (const item of items) {
+                                if (this.isServerToClientMessage(item)) {
+                                    mappedMessages.push(this.normalizeServerMessage(item));
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Not valid JSON or wrong format, ignore
+                }
+                continue;
+            }
+
+            // Check if it's an activity message containing A2UI payload
+            const msg = message as any;
+            if (msg.role === 'activity' && msg.activityType === 'a2ui' && msg.content) {
+                if (this.isServerToClientMessage(msg.content)) {
+                    mappedMessages.push(this.normalizeServerMessage(msg.content));
+                } else {
+                    // It might be a raw message or array of messages
+                    const content = msg.content;
+                    const items = Array.isArray(content) ? content : [content];
+                    for (const item of items) {
+                        if (this.isServerToClientMessage(item)) {
+                            mappedMessages.push(this.normalizeServerMessage(item));
+                        }
+                    }
+                }
                 continue;
             }
 
@@ -415,6 +464,70 @@ export class A2UIService {
         });
 
         return Array.from(ids);
+    }
+
+    /**
+     * Checks if a message contains ONLY beginRendering payloads.
+     */
+    isBeginRenderingOnly(message: UIMessage): boolean {
+        const payloads = this.getA2UIPayloads(message);
+        if (payloads.length === 0) return false;
+        return payloads.every(p => {
+            const hasBegin = !!p.beginRendering;
+            const hasOther = !!p.surfaceUpdate || !!p.dataModelUpdate || !!p.deleteSurface;
+            return hasBegin && !hasOther;
+        });
+    }
+
+    /**
+     * Checks if a message contains A2UI activity.
+     */
+    isA2UIMessage(message: UIMessage): boolean {
+        if (message.role === 'activity' && (message as any).activityType === 'a2ui') return true;
+        if (message.role === 'assistant' && message.toolCalls && message.toolCalls.some(tc => tc.function?.name.startsWith('a2ui_'))) return true;
+        if (message.role === 'tool' && typeof message.content === 'string') {
+            try {
+                const parsed = JSON.parse(message.content);
+                return parsed.role === 'activity' && parsed.activity_type === 'a2ui';
+            } catch {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Extracts A2UI payloads from a message.
+     */
+    getA2UIPayloads(message: UIMessage): v0_8.Types.ServerToClientMessage[] {
+        const payloads: v0_8.Types.ServerToClientMessage[] = [];
+
+        if (message.role === 'assistant' && message.toolCalls) {
+            payloads.push(...this.mapMessage(message));
+        } else if (message.role === 'activity' && (message as any).activityType === 'a2ui' && message.content) {
+            const content = message.content;
+            const items = Array.isArray(content) ? content : [content];
+            items.forEach(item => {
+                if (this.isServerToClientMessage(item)) {
+                    payloads.push(this.normalizeServerMessage(item));
+                }
+            });
+        } else if (message.role === 'tool' && typeof message.content === 'string') {
+            try {
+                const parsed = JSON.parse(message.content);
+                if (parsed.role === 'activity' && parsed.activity_type === 'a2ui' && parsed.content) {
+                    const content = parsed.content;
+                    const items = Array.isArray(content) ? content : [content];
+                    items.forEach(item => {
+                        if (this.isServerToClientMessage(item)) {
+                            payloads.push(this.normalizeServerMessage(item));
+                        }
+                    });
+                }
+            } catch { }
+        }
+
+        return payloads;
     }
 }
 
