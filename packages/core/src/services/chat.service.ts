@@ -227,7 +227,7 @@ export class ChatService extends EventTarget {
                 break;
         }
 
-
+        this.agent.addMessage(userMsg as Message);
 
         this.notify();
 
@@ -235,7 +235,7 @@ export class ChatService extends EventTarget {
             if (this.agent?.threadId == threadIdPlaceHolder)
                 await this._ensureConversation();
             // Add only the new message
-            this.agent.addMessage(userMsg as Message);
+
 
             this.agent.state = {
                 appState: this._appState
@@ -382,6 +382,7 @@ export class ChatService extends EventTarget {
 
     async startNewThread() {
         localStorage.removeItem(STORAGE_THREAD_ID_KEY);
+        console.log("ChatService: startNewThread");
         if (this.agent) {
             this.agent.threadId = threadIdPlaceHolder;
             this.agent.messages = [];

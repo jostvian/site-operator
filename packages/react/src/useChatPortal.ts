@@ -1,8 +1,8 @@
-import { useEffect, useState, type RefObject } from 'react';
+import { useEffect, useState } from 'react';
 import { chatPortalService, type AppContext, type ChatController, type AgentChat, type Action, type ExecutePlanResult } from 'site-operator';
 
 export type UseChatPortalOptions = {
-    chatRef?: RefObject<AgentChat | null>;
+    element?: AgentChat | null;
 };
 
 /**
@@ -10,8 +10,8 @@ export type UseChatPortalOptions = {
  * This allows the agent to navigate and control the host application.
  * @param context The AppContext defining site, user and navigation.
  *                If null/undefined, registration is skipped.
- * @param options Optional refs for accessing the AgentChat controller and custom handlers.
- * @returns ChatController instance if an AgentChat ref is provided.
+ * @param options Optional options for accessing the AgentChat controller and custom handlers.
+ * @returns ChatController instance if an AgentChat element is provided.
  */
 export function useChatPortal(
     context: AppContext | null | undefined,
@@ -25,12 +25,14 @@ export function useChatPortal(
     }, [context, options?.handlers]);
 
     useEffect(() => {
-        const element = options?.chatRef?.current;
-        if (!element) return;
+        const element = options?.element;
+        if (!element) {
+            setController(null);
+            return;
+        }
 
         if (element.controller) {
             setController(element.controller);
-            return;
         }
 
         const handleReady = (event: HTMLElementEventMap['controller-ready']) => {
@@ -41,7 +43,7 @@ export function useChatPortal(
         return () => {
             element.removeEventListener('controller-ready', handleReady);
         };
-    }, [options?.chatRef]);
+    }, [options?.element]);
 
     return controller;
 }

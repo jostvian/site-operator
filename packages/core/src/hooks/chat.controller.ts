@@ -90,6 +90,7 @@ export class ChatController implements ReactiveController {
      * Inicia un nuevo hilo de charla.
      */
     startNewThread() {
+        console.log('Starting new thread');
         return chatService.startNewThread();
     }
 

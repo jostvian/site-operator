@@ -46,11 +46,13 @@ export class ChatThread extends LitElement {
       <div class="messages-list">
         ${this.messages
         .filter(msg => {
-          if (msg.role === 'assistant' || msg.role === 'user') return true;
+          // if (msg.role === 'assistant' || msg.role === 'user') return true;
           if (a2uiService.isA2UIMessage(msg)) {
+            console.log("A2UIService: isA2UIMessage", msg);
             return !a2uiService.isBeginRenderingOnly(msg);
           }
-          return false;
+          return true;
+
         })
         .map((msg, index, filteredArr) => html`
           <agent-chat-message 

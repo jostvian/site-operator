@@ -54,6 +54,8 @@ export const styles = css`
     color: var(--agent-text-foreground, #09090b);
     line-height: 1.5;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   :host([role="user"]) .bubble {

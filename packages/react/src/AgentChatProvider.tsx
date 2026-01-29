@@ -45,8 +45,8 @@ export const AgentChatProvider: React.FC<AgentChatProviderProps> = ({
   handlers,
   ...props
 }) => {
-  const chatRef = useRef<AgentChatElement>(null);
-  const controller = useChatPortal(context?.appContext, { chatRef, handlers });
+  const [chatElement, setChatElement] = useState<AgentChatElement | null>(null);
+  const controller = useChatPortal(context?.appContext, { element: chatElement, handlers });
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
 
   return (
@@ -54,7 +54,7 @@ export const AgentChatProvider: React.FC<AgentChatProviderProps> = ({
       <AgentChatMountContext.Provider value={setMountNode}>
         {children}
         {mountNode
-          ? createPortal(<AgentChat ref={chatRef} context={context} {...props} />, mountNode)
+          ? createPortal(<AgentChat ref={setChatElement} context={context} {...props} />, mountNode)
           : null}
       </AgentChatMountContext.Provider>
     </AgentChatControllerContext.Provider>

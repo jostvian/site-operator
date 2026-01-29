@@ -16,6 +16,30 @@ export class A2UIService {
 
     }
 
+    /**
+     * Resolves a value descriptor (literal or path) against a surface's data model.
+     */
+    public resolveValue(surfaceId: string, descriptor: any): any {
+        if (!descriptor) return undefined;
+        if (descriptor.literalString !== undefined) return descriptor.literalString;
+        if (descriptor.literalNumber !== undefined) return descriptor.literalNumber;
+        if (descriptor.literalBoolean !== undefined) return descriptor.literalBoolean;
+        if (descriptor.literalArray !== undefined) return descriptor.literalArray;
+
+        if (descriptor.path) {
+            const surface = this.processor.getSurfaces().get(surfaceId);
+            if (surface) {
+                // Remove leading slash if present to match how keys are stored in many implementations
+                const pathKey = descriptor.path.startsWith('/') ? descriptor.path.substring(1) : descriptor.path;
+                const val = surface.dataModel.get(pathKey);
+                if (val !== undefined) return val;
+            }
+            // Fallback if path is not in dataModel yet or surface not found
+            console.warn(`A2UIService: Could not resolve path ${descriptor.path} for surface ${surfaceId}`);
+        }
+        return undefined;
+    }
+
     private mapMessage(message: UIMessage): v0_8.Types.ServerToClientMessage[] {
         if (message.role !== 'assistant' || !message.toolCalls) {
             throw new Error("Unsupported message type for A2UI processing");
@@ -147,8 +171,9 @@ export class A2UIService {
     }
 
     private normalizeDataModelUpdate(update: v0_8.Types.DataModelUpdate): v0_8.Types.DataModelUpdate {
+        const surfaceId = update.surfaceId || (update as any).surface_id;
         const normalized: v0_8.Types.DataModelUpdate = {
-            surfaceId: update.surfaceId,
+            surfaceId,
             contents: this.normalizeValueMapArray(update.contents)
         };
 
@@ -156,6 +181,7 @@ export class A2UIService {
             normalized.path = update.path;
         }
 
+        console.log(`A2UIService: Normalized DataModelUpdate for ${surfaceId}`, normalized);
         return normalized;
     }
 
@@ -208,7 +234,7 @@ export class A2UIService {
         }
 
         return contents
-            .filter((entry) => entry && typeof entry === "object" && "key" in entry)
+            .filter((entry) => entry && typeof entry === "object" && ("key" in entry || "path" in entry))
             .map((entry) => this.normalizeValueMapEntry(entry as Record<string, unknown>));
     }
 
@@ -234,6 +260,18 @@ export class A2UIService {
             normalized.valueBoolean = entry["valueBoolean"];
         }
 
+        // Handle generic 'value' and 'path' aliases often used by agents
+        if (!("key" in normalized) && "path" in entry) {
+            normalized.key = entry["path"];
+        }
+
+        if (!("valueString" in normalized) && !("valueNumber" in normalized) && !("valueBoolean" in normalized) && "value" in entry) {
+            const val = entry["value"];
+            if (typeof val === 'string') normalized.valueString = val;
+            else if (typeof val === 'number') normalized.valueNumber = val;
+            else if (typeof val === 'boolean') normalized.valueBoolean = val;
+        }
+
         const valueMap = entry["valueMap"] ?? entry["value_map"];
         if (valueMap !== undefined) {
             normalized.valueMap = this.normalizeValueMapArray(valueMap);
@@ -246,6 +284,12 @@ export class A2UIService {
 
         if (typeof normalized.key !== "string") {
             normalized.key = String(normalized.key ?? "");
+        }
+
+        // Normalize: remove leading slash from keys to match path resolution
+        let key = normalized.key as string;
+        if (key.startsWith('/')) {
+            normalized.key = key.substring(1);
         }
 
         return normalized as v0_8.Types.ValueMap;
@@ -383,6 +427,7 @@ export class A2UIService {
             return;
         }
 
+        console.log("A2UIService: Processing mapped messages:", JSON.stringify(mappedMessages, null, 2));
         return this.processor.processMessages(mappedMessages);
     }
 
@@ -436,9 +481,9 @@ export class A2UIService {
                 return m;
             }).flat();
 
-            const finalMessages = [...prefixMessages, ...messages];
-            console.log("A2UIService: Processing messages (fixed)", finalMessages);
-            this.processor.processMessages(finalMessages as any[]);
+            const finalMessages = [...prefixMessages, ...messages].map(m => this.normalizeServerMessage(m as any));
+            console.log("A2UIService: Processing messages (fixed & normalized)", JSON.stringify(finalMessages, null, 2));
+            this.processor.processMessages(finalMessages);
 
             // Post-process log
             const surfaces = Array.from(this.processor.getSurfaces().entries());
@@ -485,6 +530,7 @@ export class A2UIService {
     isA2UIMessage(message: UIMessage): boolean {
         if (message.role === 'activity' && (message as any).activityType === 'a2ui') return true;
         if (message.role === 'assistant' && message.toolCalls && message.toolCalls.some(tc => tc.function?.name.startsWith('a2ui_'))) return true;
+
         if (message.role === 'tool' && typeof message.content === 'string') {
             try {
                 const parsed = JSON.parse(message.content);

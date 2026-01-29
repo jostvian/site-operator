@@ -15,6 +15,7 @@ import './inspector-window';
 import { ChatController } from '../hooks/chat.controller';
 import { ToolIcon } from '../icons';
 
+import { a2uiService } from '../services/a2ui.service';
 import { fetchInterceptorService } from '../services/fetch-interceptor.service';
 
 @customElement('agent-chat')
@@ -35,7 +36,24 @@ export class AgentChat extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this._injectFonts();
         this.addEventListener('a2uiaction', this._handleA2UIAction as EventListener);
+    }
+
+    private _injectFonts() {
+        const fonts = [
+            'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200',
+            'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
+        ];
+
+        fonts.forEach(url => {
+            if (!document.querySelector(`link[href="${url}"]`)) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                document.head.appendChild(link);
+            }
+        });
     }
 
     disconnectedCallback() {
@@ -205,19 +223,22 @@ export class AgentChat extends LitElement {
     }
 
     private _handleA2UIAction(e: CustomEvent) {
-        const { action } = e.detail;
+        const { action, surfaceId } = e.detail;
         if (!action) return;
 
-        console.log('AgentChat: A2UI Action received:', action);
+        console.log('AgentChat: A2UI Action received:', action, 'Surface:', surfaceId);
+
+        // Intentamos obtener un surfaceId por defecto si no viene en el evento
+        const activeSurfaceId = surfaceId || Array.from(a2uiService.processor.getSurfaces().keys())[0] || 'root';
 
         // Handler específico para decisiones de autenticación/consentimiento
         if (action.name === 'decision') {
-            this._handleAuthDecision(action);
+            this._handleAuthDecision(action, activeSurfaceId);
             return;
         }
 
-        // Handler genérico para URLs
-        this._handleGenericUrlAction(action);
+        // Handler genérico para URLs (openLink, etc)
+        this._handleGenericUrlAction(action, activeSurfaceId);
     }
 
     /**
@@ -225,10 +246,13 @@ export class AgentChat extends LitElement {
      * Si es 'approve', abre una URL y espera a que se cierre la pestaña antes de notificar.
      * Si es 'deny', notifica inmediatamente.
      */
-    private _handleAuthDecision(action: any) {
+    private _handleAuthDecision(action: any, surfaceId: string) {
         const context = action.context || [];
-        const decision = context.find((p: any) => p.key === 'userDecision')?.value?.literalString;
-        const url = context.find((p: any) => ['url', 'href', 'link', 'uri'].includes(p.key?.toLowerCase()))?.value?.literalString;
+        const decisionParam = context.find((p: any) => p.key === 'userDecision');
+        const decision = a2uiService.resolveValue(surfaceId, decisionParam?.value);
+
+        const urlParam = context.find((p: any) => ['url', 'href', 'link', 'uri'].includes(p.key?.toLowerCase()));
+        const url = a2uiService.resolveValue(surfaceId, urlParam?.value);
 
         console.log(`AgentChat: Specialized decision handler: ${decision}`, action);
 
@@ -274,15 +298,17 @@ export class AgentChat extends LitElement {
     /**
      * Handler genérico para cualquier acción que contenga una URL.
      */
-    private _handleGenericUrlAction(action: any) {
+    private _handleGenericUrlAction(action: any, surfaceId: string) {
         const urlParam = action.context?.find((p: any) =>
             ['url', 'href', 'link', 'uri'].includes(p.key?.toLowerCase())
         );
-        const url = urlParam?.value?.literalString || urlParam?.value?.path;
+        const url = a2uiService.resolveValue(surfaceId, urlParam?.value);
 
         if (url) {
             console.log(`AgentChat: Opening generic URL: ${url}`);
             window.open(url, '_blank');
+        } else if (action.name === 'openLink') {
+            console.warn('AgentChat: openLink action received but no URL could be resolved:', action);
         } else {
             console.warn('AgentChat: A2UI Action received without recognizable purpose:', action);
         }

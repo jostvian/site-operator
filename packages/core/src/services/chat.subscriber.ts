@@ -39,6 +39,7 @@ export class ChatSubscriber implements AgentSubscriber {
 
     onRunFinishedEvent(params: { event: RunFinishedEvent, result?: any } & AgentSubscriberParams) {
         inspectorService.addEvent('onRunFinishedEvent', params.event);
+        this.service.cleanupThinkingPlaceholder();
     }
 
     onRunStartedEvent(params: { event: RunStartedEvent } & AgentSubscriberParams) {
@@ -51,6 +52,7 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onRunErrorEvent', params.event);
         // We could also notify the user in the UI, but for now we logs it to inspector
         console.error('ChatSubscriber: Run Error', params.event);
+        this.service.cleanupThinkingPlaceholder();
     }
 
     onStepStartedEvent(params: { event: StepStartedEvent } & AgentSubscriberParams) {
@@ -84,10 +86,26 @@ export class ChatSubscriber implements AgentSubscriber {
         inspectorService.addEvent('onMessagesSnapshotEvent', params.event);
 
         // Sync full state, mapping to our local Message type
-        const messages: UIMessage[] = params.event.messages.map(msg => ({
-            ...msg,
-            createdAt: (msg as any).createdAt || Date.now(),
-        }));
+        const messages: UIMessage[] = params.event.messages
+            .filter(msg => {
+                // Ignore 'tool' role messages (already handled in backend but library might resend)
+                if (msg.role === 'tool') return false;
+
+                // Ignore 'assistant' messages that only contain non-A2UI tool calls
+                if (msg.role === 'assistant' && msg.toolCalls && msg.toolCalls.length > 0) {
+                    const hasA2UITool = msg.toolCalls.some(tc => tc.function?.name?.startsWith('a2ui_'));
+                    const hasContent = typeof msg.content === 'string' && msg.content.trim().length > 0;
+
+                    // If it only has internal tools and no text content, hide it
+                    if (!hasA2UITool && !hasContent) return false;
+                }
+
+                return true;
+            })
+            .map(msg => ({
+                ...msg,
+                createdAt: (msg as any).createdAt || Date.now(),
+            }));
         this.service.setMessages(messages);
     }
 
@@ -164,13 +182,12 @@ export class ChatSubscriber implements AgentSubscriber {
 
     onActivitySnapshotEvent(params: { event: ActivitySnapshotEvent } & AgentSubscriberParams) {
         inspectorService.addEvent('onActivitySnapshotEvent', params.event);
-        // a2uiService.processSnapshot(params.event);
-        if (params.event.activityType == "a2ui" && params.event.content.surfaceUpdate)
-            this.service.addA2UIMessage(params.event);
-        else if (params.event.activityType == "a2ui" && params.event.content.beginRendering)
-            a2uiService.processMessages([params.event.content] as any)
-        else if (["navigation", "click", "setValue", "plan"].includes(params.event.activityType))
+
+        if (params.event.activityType === 'a2ui') {
+            a2uiService.processSnapshot(params.event);
+        } else if (["navigation", "click", "setValue", "plan"].includes(params.event.activityType)) {
             chatPortalService.executePlan(params.event.content as Action);
+        }
     }
 
     onActivityDeltaEvent(params: { event: ActivityDeltaEvent } & AgentSubscriberParams) {
