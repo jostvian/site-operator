@@ -40,9 +40,17 @@ export class ChatMessage extends LitElement {
     const isA2UI = a2uiService.isA2UIMessage(this.message);
 
     if (isA2UI) {
-      a2uiService.processMessages([this.message]);
-      const surfaces = Array.from(a2uiService.processor.getSurfaces().entries());
-      const processor = a2uiService.processor; // Use shared processor
+      // Obtenemos solo los payloads de este mensaje para filtrar qué superficies mostrar
+      const messagePayloads = a2uiService.getA2UIPayloads(this.message);
+      const messageSurfaceIds = new Set(
+        messagePayloads
+          .map(p => (p.beginRendering || p.surfaceUpdate || p.dataModelUpdate || p.deleteSurface)?.surfaceId)
+          .filter(Boolean)
+      );
+
+      const processor = a2uiService.processor;
+      const surfaces = Array.from(processor.getSurfaces().entries())
+        .filter(([id]) => messageSurfaceIds.has(id));
 
       if (surfaces.length > 0) {
         return html`
@@ -52,16 +60,15 @@ export class ChatMessage extends LitElement {
             : html`<div class="avatar">C</div>`
           }
             <div class="content-wrapper">
-              ${surfaces.map(([surfaceId, surface]) => {
-            return html`
+              ${surfaces.map(([surfaceId, surface]) => html`
                   <a2ui-theme-provider
                     .surfaceId="${surfaceId}"
                     .processor="${processor}"
                     .surface="${surface}"
                     .enableCustomElements="${true}"
                   ></a2ui-theme-provider>
-                `;
-          })}
+                `)}
+              <div class="debug-id">${this.message.id}</div>
             </div>
           </div>
         `;
@@ -87,6 +94,7 @@ export class ChatMessage extends LitElement {
                 </div>
               `
         : this.message.content}</div>
+          <div class="debug-id">${this.message.id}</div>
 
           ${!isUser ? html`
              <div class="actions">

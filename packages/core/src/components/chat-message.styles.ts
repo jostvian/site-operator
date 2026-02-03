@@ -127,4 +127,12 @@ export const styles = css`
       transform: scale(1); 
     }
   }
+  .debug-id {
+    font-size: 0.65rem;
+    color: var(--agent-text-zinc-400, #a1a1aa);
+    margin-top: 0.25rem;
+    font-family: monospace;
+    opacity: 0.6;
+    user-select: all;
+  }
 `;
