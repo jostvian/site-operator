@@ -46,9 +46,9 @@ export class ChatThread extends LitElement {
       <div class="messages-list">
         ${this.messages
         .filter(msg => {
-          // 1. A2UI Messages: show if they have content to render (not just beginRendering)
+          // 1. A2UI Messages: show the message (consolidateStream handles filtering updates)
           if (a2uiService.isA2UIMessage(msg)) {
-            return !a2uiService.isBeginRenderingOnly(msg);
+            return true;
           }
 
           // 2. User and Assistant messages: always show

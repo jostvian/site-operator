@@ -15,6 +15,24 @@ export class ChatMessage extends LitElement {
   @property({ type: Boolean }) isLast = false;
   @property({ type: Boolean }) isStreaming = false;
   @property({ type: String }) agentAvatar = '';
+  @property({ type: Boolean }) _processorUpdated = false;
+
+  private _handleProcessorUpdate = () => {
+    // Solo pedimos actualización si este mensaje es de A2UI y está en el DOM
+    if (a2uiService.isA2UIMessage(this.message)) {
+      this.requestUpdate();
+    }
+  };
+
+  connectedCallback() {
+    super.connectedCallback();
+    a2uiService.addEventListener('processor-update', this._handleProcessorUpdate);
+  }
+
+  disconnectedCallback() {
+    a2uiService.removeEventListener('processor-update', this._handleProcessorUpdate);
+    super.disconnectedCallback();
+  }
 
   updated(changedProperties: Map<string, any>) {
     if (changedProperties.has('message')) {

@@ -9,6 +9,7 @@ import { ChatSubscriber } from "./chat.subscriber";
 import { inspectorService } from "./inspector.service";
 import { conversationService } from "./conversation.service";
 import { chatPortalService } from "./chat-portal.service";
+import { a2uiService } from "./a2ui.service";
 
 const threadIdPlaceHolder = "thread-placeholder";
 const STORAGE_THREAD_ID_KEY = "site-operator-thread-id";
@@ -84,6 +85,8 @@ export class ChatService extends EventTarget {
 
         if (storedThreadId) {
             await this.loadConversation(storedThreadId);
+        } else {
+            a2uiService.clearRegistry();
         }
 
         inspectorService.setContext(this._appContext);
@@ -331,19 +334,17 @@ export class ChatService extends EventTarget {
             throw new Error("Agent not initialized");
         }
 
-        // Preserve existing activity messages that are not in the incoming set
-        const existingActivities = this.agent.messages.filter(m => m.role === ('activity' as any));
-        const incomingIds = new Set(messages.map(m => m.id));
-        const missingActivities = existingActivities.filter(m => !incomingIds.has(m.id));
+        // Apply surface consolidation to the incoming messages
+        a2uiService.clearRegistry();
+        let consolidated: UIMessage[] = [];
+        for (const msg of messages) {
+            consolidated = a2uiService.consolidateStream(msg as UIMessage, consolidated);
+        }
 
-        console.log("ChatService: setMessages - Preserving activities", missingActivities.length);
+        // Sort by createdAt to maintain some order
+        consolidated.sort((a, b) => ((a as any).createdAt || 0) - ((b as any).createdAt || 0));
 
-        // Map external messages to our Message type
-        this.agent.messages = [...(messages as UIMessage[]), ...missingActivities];
-
-        // Sort by createdAt to maintain some order (though activities might not have it from server)
-        this.agent.messages.sort((a, b) => ((a as any).createdAt || 0) - ((b as any).createdAt || 0));
-
+        this.agent.messages = consolidated;
         this.notify();
     }
 
@@ -362,8 +363,6 @@ export class ChatService extends EventTarget {
             }
         }
 
-
-
         const activityMsg: UIMessage = {
             id: event.messageId,
             role: 'activity',
@@ -372,10 +371,10 @@ export class ChatService extends EventTarget {
             createdAt: Date.now()
         };
 
-
-        // Remove existing message with same ID if any (to handle updates/snapshots)
-        const messages = this.agent.messages.filter(m => m.id !== event.messageId);
-        this.agent.messages = [...messages, activityMsg];
+        // Use consolidation to avoid creating a new bubble if one already exists for this surface.
+        // This handles cases where an assistant message and an activity message arrive for the same surface.
+        const consolidated = a2uiService.consolidateStream(activityMsg, this.agent.messages as UIMessage[]);
+        this.agent.messages = consolidated;
 
         this.notify();
     }
@@ -393,6 +392,7 @@ export class ChatService extends EventTarget {
             this._showPrompts = true;
         }
 
+        a2uiService.clearRegistry();
         this.notify();
     }
 

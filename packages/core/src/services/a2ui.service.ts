@@ -5,15 +5,26 @@ import type { UIMessage } from '../models/chat.types';
 /**
  * Service to manage A2UI message processing and surface updates.
  */
-export class A2UIService {
+export class A2UIService extends EventTarget {
     public processor: v0_8.Types.MessageProcessor = v0_8.Data.createSignalA2uiMessageProcessor();
+    private surfaceMessageRegistry = new Map<string, UIMessage>();
+    private processedMessageIds = new Set<string>();
 
     /**
      * Initializes the A2UI service.
      */
     constructor() {
+        super();
         // Initialize with empty messages to clear surfaces
+    }
 
+    /**
+     * Clears the surface registry and processed messages cache.
+     * Use this when starting a new conversation.
+     */
+    public clearRegistry() {
+        this.surfaceMessageRegistry.clear();
+        this.processedMessageIds.clear();
     }
 
     /**
@@ -247,6 +258,7 @@ export class A2UIService {
         if ("valueString" in entry) {
             normalized.valueString = entry["valueString"];
         }
+
         if ("value_number" in entry) {
             normalized.valueNumber = entry["value_number"];
         }
@@ -371,6 +383,11 @@ export class A2UIService {
         const mappedMessages: v0_8.Types.ServerToClientMessage[] = [];
 
         for (const message of messages) {
+            // Check if we already fully processed this message to avoid double calls to beginRendering
+            if (this.processedMessageIds.has(message.id) && !message.isThinking) {
+                continue;
+            }
+
             // Check if message itself is an A2UI message
             if (this.isServerToClientMessage(message)) {
                 mappedMessages.push(this.normalizeServerMessage(message));
@@ -427,8 +444,83 @@ export class A2UIService {
             return;
         }
 
-        console.log("A2UIService: Processing mapped messages:", JSON.stringify(mappedMessages, null, 2));
-        return this.processor.processMessages(mappedMessages);
+        if (mappedMessages.length > 0) {
+            console.log("A2UIService: Processing mapped messages:", JSON.stringify(mappedMessages, null, 2));
+            this.processor.processMessages(mappedMessages);
+
+            // Mark as processed
+            for (const message of messages) {
+                this.processedMessageIds.add(message.id);
+            }
+
+            this.dispatchEvent(new CustomEvent('processor-update'));
+        }
+    }
+
+    /**
+     * Consolidates A2UI messages to implement "Surface Consolidation".
+     * Only begin_rendering (or the first update for a surface) creates a visual message.
+     * Subsequent updates for the same surface_id refresh the internal state without generating new bubbles.
+     * 
+     * @param newMessage The new message to process.
+     * @param currentMessages The current list of visual messages.
+     * @returns The updated list of visual messages.
+     */
+    public consolidateStream(newMessage: UIMessage, currentMessages: UIMessage[]): UIMessage[] {
+        const payloads = this.getA2UIPayloads(newMessage);
+
+        // If not an A2UI message, add it normally
+        if (payloads.length === 0) {
+            return [...currentMessages, newMessage];
+        }
+
+        let isUpdateForExistingSurface = false;
+        let isNewSurfaceCreation = false;
+
+        for (const payload of payloads) {
+            const sid = (payload.beginRendering || payload.surfaceUpdate || payload.dataModelUpdate || payload.deleteSurface)?.surfaceId;
+            if (!sid) continue;
+
+            if (payload.beginRendering) {
+                if (!this.surfaceMessageRegistry.has(sid)) {
+                    this.surfaceMessageRegistry.set(sid, newMessage);
+                    isNewSurfaceCreation = true;
+                } else {
+                    // It's a re-initialization of an existing surface.
+                    // We treat it as an update to keep the same bubble.
+                    isUpdateForExistingSurface = true;
+                }
+            } else if (payload.surfaceUpdate || payload.dataModelUpdate) {
+                if (this.surfaceMessageRegistry.has(sid)) {
+                    isUpdateForExistingSurface = true;
+                } else {
+                    // Update for unknown surface, register this message as the parent bubble
+                    this.surfaceMessageRegistry.set(sid, newMessage);
+                    isNewSurfaceCreation = true;
+                }
+            } else if (payload.deleteSurface) {
+                if (this.surfaceMessageRegistry.has(sid)) {
+                    isUpdateForExistingSurface = true;
+                }
+            }
+        }
+
+        // Procesa los datos inmediatamente en el procesador interno de A2UI.
+        // Esto asegura que la burbuja original (que usa este mismo procesador) se actualice "in-place".
+        this.processor.processMessages(payloads);
+
+        // Marcamos como procesado para evitar que processMessages lo vuelva a procesar
+        this.processedMessageIds.add(newMessage.id);
+        this.dispatchEvent(new CustomEvent('processor-update'));
+
+        // Si el mensaje es puramente una actualización de algo que ya tiene burbuja,
+        // lo descartamos del array visual para evitar spam de burbujas técnicas.
+        if (isUpdateForExistingSurface && !isNewSurfaceCreation) {
+            console.log(`A2UIService: Consolidating update for surface(s). Discarding visual message ${newMessage.id}`);
+            return currentMessages;
+        }
+
+        return [...currentMessages, newMessage];
     }
 
     processMessage(message: UIMessage) {
@@ -525,28 +617,32 @@ export class A2UIService {
     }
 
     /**
-     * Checks if a message contains A2UI activity.
+     * Checks if a message contains A2UI activity that should be displayed as a visual bubble.
+     * Only assistant and activity roles are considered for visual representation.
      */
     isA2UIMessage(message: UIMessage): boolean {
-        if (message.role === 'activity' && (message as any).activityType === 'a2ui') return true;
-        if (message.role === 'assistant' && message.toolCalls && message.toolCalls.some(tc => tc.function?.name.startsWith('a2ui_'))) return true;
+        if (!message) return false;
 
-        if (message.role === 'tool' && typeof message.content === 'string') {
-            try {
-                const parsed = JSON.parse(message.content);
-                return parsed.role === 'activity' && parsed.activity_type === 'a2ui';
-            } catch {
-                return false;
-            }
+        // Technical roles like 'tool' or 'system' should never produce their own A2UI bubbles
+        if (message.role !== 'assistant' && message.role !== 'activity') return false;
+
+        if (message.role === 'activity' && (message as any).activityType === 'a2ui') return true;
+
+        if (message.role === 'assistant' && message.toolCalls) {
+            return message.toolCalls.some(tc => tc.function?.name.startsWith('a2ui_'));
         }
+
         return false;
     }
 
     /**
-     * Extracts A2UI payloads from a message.
+     * Extracts A2UI payloads from a message for processing.
+     * Unlike isA2UIMessage, this can look inside 'tool' messages to extract data updates
+     * that might be mirrored from the activity stream.
      */
     getA2UIPayloads(message: UIMessage): v0_8.Types.ServerToClientMessage[] {
         const payloads: v0_8.Types.ServerToClientMessage[] = [];
+        if (!message) return payloads;
 
         if (message.role === 'assistant' && message.toolCalls) {
             payloads.push(...this.mapMessage(message));
@@ -560,8 +656,10 @@ export class A2UIService {
             });
         } else if (message.role === 'tool' && typeof message.content === 'string') {
             try {
+                // Technical mapping: extract activities wrapped inside tool outputs
                 const parsed = JSON.parse(message.content);
-                if (parsed.role === 'activity' && parsed.activity_type === 'a2ui' && parsed.content) {
+
+                if ((parsed.role === 'activity' || parsed.activity_type === 'a2ui') && parsed.content) {
                     const content = parsed.content;
                     const items = Array.isArray(content) ? content : [content];
                     items.forEach(item => {
@@ -569,6 +667,8 @@ export class A2UIService {
                             payloads.push(this.normalizeServerMessage(item));
                         }
                     });
+                } else if (this.isServerToClientMessage(parsed)) {
+                    payloads.push(this.normalizeServerMessage(parsed));
                 }
             } catch { }
         }
